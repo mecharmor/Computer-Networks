@@ -1,44 +1,39 @@
 import socket
 import pickle
 import datetime
-import TCPClientHandler
 
-# Globals
-Host = input("Enter the server IP Address: ")
-Port = int(input("Enter the server port:"))
-ClientName = input("Your id key (i.e your name):")
+HOST = 'localhost'  # The server IP address. Use localhost for this project
+PORT = 8008  # The server port
 
 
-def ConnectToServer():
-    client.connect((Host, Port))
-
-
-def Send(_data):
-    # Serialization
-    data_serialized = pickle.dumps(_data)
+def SendMessage(menu_selection, msg="Hello from Client (test)!"):
+    data = {"msg": msg,
+            "timestamp": datetime.datetime.now(),
+            "menu_selection": menu_selection
+            }
+    data_serialized = pickle.dumps(data)
     client.send(data_serialized)
 
 
-def Receive():
-    # TCPClientHandler handles response
-    # Server Response
+def ReceiveMessage():
     server_response = client.recv(1024)
-    # Desearialize data
+    # Deserialize the data.
     server_data = pickle.loads(server_response)
-    return server_data
+    # Get all the values in the data dictionary
+    client_id = server_data['client_id']  # the client id assigned by the server
+    server_msg = server_data['msg']
+    print("Client " + str(client_id) + "successfully connected to server")
+    print("Server says: " + server_msg)
 
 
-# Create Socket
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+try:
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # Connects to the server using its host IP and port
+    client.connect((HOST, PORT))
 
-# Sample Json Data
-data = {"msg_from_client": "Hello from client!",
-        "sent_on": datetime.datetime.now()}
+    SendMessage("test message", 1)
+    ReceiveMessage()
 
-ConnectToServer()
-Send(data)
-# Get values in dictionary
-# client_id = data['client_id']
-# server_msg = data['msg_from_server']
-
+except socket.error as socket_exception:
+    print(socket_exception)  # An exception occurred at this point
 client.close()

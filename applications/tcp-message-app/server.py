@@ -1,50 +1,67 @@
+# Server implementation
+
+# a) take ip and port as parameters. once executed wait listening at that port for new connections
+# b) log connections
+# c) log ALL activity to console
+# d) server should never crash. use exception handling
+
 import socket
 import pickle
 import datetime
+import threading
 
-Host = '127.0.0.1'  # localhost
-Port = '12000'
-
+Host = "localhost"
+Port = 8008
+MAX_NUM_CONNECTIONS = 5
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(('127.0.0.1', 12000))
-server.listen(5)
-print("Server listening on port (" + str(Port) + ")")
+server.bind((Host, Port))
+server.listen(MAX_NUM_CONNECTIONS)  # max 5 connections at a time
+print("Server listening at port: " + str(Port) + "... ")
 
-while True:
-    # client connected
-    # we need to save the host ip address and client socket connected
-    client_sock, addr = server.accept()  # need to put everything after this on a thread. it will block after this
 
-    client_id = addr[1]  # addr[0] is the host ip address. client id assigned by server
-
-    print("Client " + str(client_id) + " has connected!")
-
-    # inner loop handles interaction between client and server
+def HandleConnection(_client_sock, _addr):
+    # the client id assigned by server to this client
+    # note that addr[0] is the host ip address
+    _client_id = _addr[1]
+    print("Client " + str(_client_id) + " has connected")
+    # inner loop handles the interaction between this client and the server
     while True:
-        try:
-            # retrieve data from client
-            request_from_client = client_sock.recv(1024)
-            # deserialize data
+        # the server gets data request from client
+        request_from_client = client_sock.recv(4096)
+        # deserialize the data
+        if request_from_client:
             data = pickle.loads(request_from_client)
-            # extract data from msg
-            client_msg = data['msg_from_client']
-            date = data['sent_on']
+            client_msg = data['msg']
+            client_setting = data['menu_selection']
+            timestamp = data['timestamp']
+            # disconnect
+            if client_setting == 7:
+                print(_client_id + " disconnected")
+                break
+            print("Client says: " + client_msg + " message sent on " + str(timestamp)) # crashing on this line!!!!!!!!!
+        # prepare server response
+        server_msg = "Hello from server!"
+        server_response = {"client_id": _client_id, "msg": server_msg}
+        # serialize and sent the data to client
+        serialized_data = pickle.dumps(server_response)
+        client_sock.send(serialized_data)
+    # this happens when either the client do no send more data
+    # or the client closed the connection from the client side.
+    client_sock.close()
 
-            # output result
-            print("Client says: " + client_msg + " date [" + str(date) + "] ")
 
-            # prepare server response
-            server_msg = "Hello from the server!"
-            server_response = {"client_id": client_id, "msg_from_server": server_msg}
+# Event Loop
+while True:
+    try:
+        client_sock, addr = server.accept()
+        # thread handler
+        threading.Thread(target=HandleConnection, args=(client_sock, addr)).start()
 
-            # serialize data
-            serialized_data = pickle.dumps(server_response)
-            client_sock.send(serialized_data)
+    except socket.error as socket_exception:
+        print(socket_exception)
 
-            # closing connection from client side
-            client_sock.close()
-
-        except socket.error as socket_exception:
-            print(socket_exception)  # exception occurred
-
-    server.close()
+# join closed sessions
+# for _t in activeThreads:
+#     _t.join()
+#     print(_t.getName() + "is joined")
+# server.close()
