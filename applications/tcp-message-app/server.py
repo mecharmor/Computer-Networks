@@ -8,7 +8,11 @@
 import socket
 import pickle
 import datetime
+
+# threading
+from _thread import *
 import threading
+lock = threading.Lock()
 
 Host = "localhost"
 Port = 8008
@@ -27,7 +31,14 @@ def HandleConnection(_client_sock, _addr):
     # inner loop handles the interaction between this client and the server
     while True:
         # the server gets data request from client
-        request_from_client = client_sock.recv(4096)
+        try:
+            request_from_client = _client_sock.recv(1024)
+        except socket.error as e:
+            # error 10053 is when client unexpectedly drops connection
+            if e.errno == 10053:
+                break
+            else:
+                print(e)
         # deserialize the data
         if request_from_client:
             data = pickle.loads(request_from_client)
@@ -37,17 +48,18 @@ def HandleConnection(_client_sock, _addr):
             # disconnect
             if client_setting == 7:
                 print(_client_id + " disconnected")
+                lock.release()
                 break
-            print("Client says: " + client_msg + " message sent on " + str(timestamp)) # crashing on this line!!!!!!!!!
+            print("Client says: " + client_msg + " message sent on " + str(timestamp))  # crashing on this line!!!!!!!!!
         # prepare server response
         server_msg = "Hello from server!"
         server_response = {"client_id": _client_id, "msg": server_msg}
         # serialize and sent the data to client
         serialized_data = pickle.dumps(server_response)
-        client_sock.send(serialized_data)
-    # this happens when either the client do no send more data
-    # or the client closed the connection from the client side.
-    client_sock.close()
+        _client_sock.send(serialized_data)
+
+
+    _client_sock.close()
 
 
 # Event Loop
@@ -55,7 +67,11 @@ while True:
     try:
         client_sock, addr = server.accept()
         # thread handler
-        threading.Thread(target=HandleConnection, args=(client_sock, addr)).start()
+        # threading.Thread(target=HandleConnection, args=(client_sock, addr)).start()
+        # HandleConnection(client_sock, addr)
+        lock.acquire()
+        print('Connected to: ', addr[0], ':', addr[1])
+        start_new_thread(HandleConnection, (client_sock, addr))
 
     except socket.error as socket_exception:
         print(socket_exception)

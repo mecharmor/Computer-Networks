@@ -31,8 +31,9 @@ try:
     # Connects to the server using its host IP and port
     client.connect((HOST, PORT))
 
-    SendMessage("test message", 1)
-    ReceiveMessage()
+    while True:
+        SendMessage(1, input("Enter Message: "))
+        ReceiveMessage()
 
 except socket.error as socket_exception:
     print(socket_exception)  # An exception occurred at this point
