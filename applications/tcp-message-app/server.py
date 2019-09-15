@@ -8,10 +8,8 @@
 import socket
 import pickle
 import datetime
-
-# threading
-from _thread import *
 import threading
+
 lock = threading.Lock()
 
 Host = "localhost"
@@ -35,7 +33,7 @@ def HandleConnection(_client_sock, _addr):
             request_from_client = _client_sock.recv(1024)
         except socket.error as e:
             # error 10053 is when client unexpectedly drops connection
-            if e.errno == 10053:
+            if e.errno == 10053 or e.errno == 10054:
                 break
             else:
                 print(e)
@@ -48,7 +46,6 @@ def HandleConnection(_client_sock, _addr):
             # disconnect
             if client_setting == 7:
                 print(_client_id + " disconnected")
-                lock.release()
                 break
             print("Client says: " + client_msg + " message sent on " + str(timestamp))  # crashing on this line!!!!!!!!!
         # prepare server response
@@ -58,7 +55,6 @@ def HandleConnection(_client_sock, _addr):
         serialized_data = pickle.dumps(server_response)
         _client_sock.send(serialized_data)
 
-
     _client_sock.close()
 
 
@@ -67,11 +63,7 @@ while True:
     try:
         client_sock, addr = server.accept()
         # thread handler
-        # threading.Thread(target=HandleConnection, args=(client_sock, addr)).start()
-        # HandleConnection(client_sock, addr)
-        lock.acquire()
-        print('Connected to: ', addr[0], ':', addr[1])
-        start_new_thread(HandleConnection, (client_sock, addr))
+        threading.Thread(target=HandleConnection, args=(client_sock, addr)).start()
 
     except socket.error as socket_exception:
         print(socket_exception)
