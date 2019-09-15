@@ -11,15 +11,9 @@ class TCPClientHandler:
         return self.disconnected
 
     def next_prompt(self):
-        return int(input(""
-                         "****** TCP Message App ******"
-                         "1. Get user list"
-                         "2. Sent a message"
-                         "3. Get my messages"
-                         "4. Create a new channel"
-                         "5. Chat in a channel with your friends"
-                         "6. Disconnect from server"
-                         "Your option <enter a number>:"))
+        return int(input( "****** TCP Message App ******\n1. Get user list\n2. Sent a message\n3. Get my messages\n4. "
+                          "Create a new channel\n5. Chat in a channel with your friends\n6. Disconnect from "
+                          "server\nYour option <enter a number>:"))
 
     def handle_menu_selection(self, menu_selection, message=None):
         if menu_selection == 1:
@@ -50,8 +44,8 @@ class TCPClientHandler:
         for i in user_list:
             print(i)
 
-    def send_message(self, client_route, message=""):
-        data = {"msg": message, "timestamp": datetime.datetime.now(), "client_route": client_route,
+    def send_message(self, menu_option, message=""):
+        data = {"msg": message, "timestamp": datetime.datetime.now(), "menu_option": menu_option,
                 "username": self.username}
         data_serialized = pickle.dumps(data)
         self.client.send(data_serialized)

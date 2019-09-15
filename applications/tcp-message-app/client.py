@@ -16,7 +16,7 @@ class Client:
         try:
             data = {"msg": "<empty message>",
                     "timestamp": datetime.datetime.now(),
-                    "client_route": 0,
+                    "menu_option": 0,
                     "username": self.username
                     }
             data_serialized = pickle.dumps(data)

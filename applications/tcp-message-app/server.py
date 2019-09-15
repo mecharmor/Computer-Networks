@@ -32,9 +32,9 @@ class Server:
         print("Client " + str(client_id) + " has connected")
         # inner loop handles the interaction between this client and the server
         while True:
-            request_from_client = None
+            req = None
             try:
-                request_from_client = client_socket.recv(1024)
+                req = client_socket.recv(1024)
             except socket.error as e:
                 # error 10053 is when client unexpectedly drops connection
                 if e.errno == 10053 or e.errno == 10054:
@@ -43,24 +43,25 @@ class Server:
                     print(e)
 
             server_msg = "sample message"
-            if request_from_client:
+            if req:
                 # deserialize
-                data = pickle.loads(request_from_client)
+                data_from_req = pickle.loads(req)
                 # parse
-                client_msg = data['msg']
-                client_route = data['client_route']
-                timestamp = data['timestamp']
-                username = data['username']
+                client_msg = data_from_req['msg']
+                menu_option = data_from_req['menu_option']
+                timestamp = data_from_req['timestamp']
+                username = data_from_req['username']
 
                 print("Client says: " + client_msg + " message sent on " + str(timestamp))
 
-            server_response = {"msg": server_msg,
-                               "timestamp": datetime.datetime.now(),
-                               "client_route": client_route,
-                               "client_id": client_id
-                               }
-            serialized_data = pickle.dumps(server_response)
-            client_socket.send(serialized_data)
+                res = {"msg": server_msg,
+                                   "timestamp": datetime.datetime.now(),
+                                   "menu_option": menu_option,
+                                   "client_id": client_id,
+                                   "username": username
+                                   }
+                res_serialized = pickle.dumps(res)
+                client_socket.send(res_serialized)
 
         client_socket.close()
 
@@ -87,22 +88,22 @@ Server_.start_server()
 
 
 # server_msg = None
-# if client_route == 3:
+# if menu_option == 3:
 #     server_msg = getHistoryOfClient(client_id)
 
-# if client_route == 1:
+# if menu_option == 1:
 #
 # # get user list
-# elif client_route == 2:
+# elif menu_option == 2:
 #
 # # sent a message
-# elif client_route == 3:
+# elif menu_option == 3:
 # # get my messages
-# elif client_route == 4:
+# elif menu_option == 4:
 # # create a new channel
-# elif client_route == 5:
+# elif menu_option == 5:
 # # create chat in a channel with your friends
-# elif client_route == 6:
+# elif menu_option == 6:
 #     # disconnect from server
 #     print(client_id + " disconnected")
 #     break
