@@ -1,64 +1,56 @@
 import socket
 import pickle
 import datetime
+from TCPClientHandler import TCPClientHandler
 
 
 class Client:
     def __init__(self, username, host, port):
-        self.client = None
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.username = username
         self.host = host
         self.port = port
-
-    def send_message(self, client_route, msg="<NO MESSAGE>"):
-        data = {"msg": msg,
-                "timestamp": datetime.datetime.now(),
-                "client_route": client_route,
-                "username": self.username
-                }
-        data_serialized = pickle.dumps(data)
-        self.client.send(data_serialized)
-
-    def receive_message(self):
-        # THIS NEEDS TO USE THE TCPClientHandler class
-
-        server_response = self.client.recv(1024)
-        # Deserialize the data.
-        server_data = pickle.loads(server_response)
-        # Get all the values in the data dictionary
-        client_id = server_data['client_id']  # the client id assigned by the server
-        server_msg = server_data['msg']
-        print("Client " + str(client_id) + " successfully connected to server")
-        print("Server says: " + server_msg)
+        self.tcp_handler = None
 
     def initial_handshake(self):
-        self.send_message(0)  # 0 selection is the initial handshake with server
-
-        server_data = None
         try:
+            data = {"msg": "<empty message>",
+                    "timestamp": datetime.datetime.now(),
+                    "client_route": 0,
+                    "username": self.username
+                    }
+            data_serialized = pickle.dumps(data)
+            self.client.send(data_serialized)
             server_data = pickle.loads(self.client.recv(1024))
             print("Successfully connected to server with IP: " + self.host + " and PORT: " + str(self.port))
+
+            print("Your client info is:")
+            print("Client Name: " + self.username)
+            print("Client ID: " + str(server_data['client_id']))
         except socket.error as e:
             print("Failed connecting to server with IP: " + self.host + " and PORT: " + str(self.port))
             return
 
-        print("Your client info is:")
-        print("Client Name: " + self.username)
-        print("Client ID: " + str(server_data['client_id']))
-
     def connect(self):
         try:
-            self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            # Connects to the server using its host IP and port
             self.client.connect((self.host, self.port))
             self.initial_handshake()
+            self.tcp_handler = TCPClientHandler(self.client, self.username)
 
             while True:
-                self.send_message(3, input("Enter Message: "))
-                self.receive_message()
-
+                menu_selection = self.tcp_handler.next_prompt()
+                message_to_send = None
+                if menu_selection not in range(1, 7):
+                    print("Incorrect option entered. please enter a real menu option")
+                    continue
+                elif menu_selection == 2:
+                    message_to_send = input("Send: ")
+                self.tcp_handler.handle_menu_selection(menu_selection, message_to_send)
+                # terminate client if disconnect occurs
+                if self.tcp_handler.is_disconnected() is True:
+                    break
         except socket.error as socket_exception:
-            print(socket_exception)  # An exception occurred at this point
+            print(socket_exception)
         self.client.close()
 
 

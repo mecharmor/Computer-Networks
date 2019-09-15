@@ -1,10 +1,3 @@
-# Server implementation
-
-# a) take ip and port as parameters. once executed wait listening at that port for new connections
-# b) log connections
-# c) log ALL activity to console
-# d) server should never crash. use exception handling
-
 import socket
 import pickle
 import datetime
@@ -31,11 +24,11 @@ class Server:
         while True:
             try:
                 client_sock, addr = server.accept()  # Note: addr[0] is client IP, addr[1] is socket id
-                threading.Thread(target=self.HandleConnection, args=(client_sock, addr[1])).start()
+                threading.Thread(target=self.handle_connection, args=(client_sock, addr[1])).start()
             except socket.error as socket_exception:
                 print(socket_exception)
 
-    def HandleConnection(self, client_socket, client_id):
+    def handle_connection(self, client_socket, client_id):
         print("Client " + str(client_id) + " has connected")
         # inner loop handles the interaction between this client and the server
         while True:
@@ -61,7 +54,11 @@ class Server:
 
                 print("Client says: " + client_msg + " message sent on " + str(timestamp))
 
-            server_response = {"client_id": client_id, "msg": server_msg}
+            server_response = {"msg": server_msg,
+                               "timestamp": datetime.datetime.now(),
+                               "client_route": client_route,
+                               "client_id": client_id
+                               }
             serialized_data = pickle.dumps(server_response)
             client_socket.send(serialized_data)
 
