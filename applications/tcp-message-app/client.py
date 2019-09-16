@@ -40,14 +40,18 @@ class Client:
             while True:
                 menu_selection = self.tcp_handler.next_prompt()
                 if menu_selection not in range(1, 7):
-                    print("Incorrect option entered. please enter a real menu option")
+                    print("\nIncorrect option entered. please enter a real menu option\n\n")
                     continue
                 self.tcp_handler.handle_menu_selection(menu_selection)
                 # terminate client if disconnect occurs
                 if self.tcp_handler.is_disconnected() is True:
                     break
-        except socket.error as socket_exception:
-            print(socket_exception)
+        except socket.error as e:
+            if e.errno == 10053 or e.errno == 10054:
+                print("Server Connection Dropped!! (Server might be down)")
+            else:
+                print(e)
+            input("Press Enter To Exit")
         self.client.close()
 
 

@@ -1,5 +1,8 @@
 import pickle
 import datetime
+import socket
+import threading
+from threading import Lock
 
 
 class TCPClientHandler:
@@ -7,19 +10,24 @@ class TCPClientHandler:
         self.client = client_ref
         self.username = username
         self.disconnected = False
+        self.channel_socket_list = []
+        self.lock = Lock()
+
     def is_disconnected(self):
         return self.disconnected
 
     def next_prompt(self):
-        return int(input("****** TCP Message App ******\n"
-                         "1. Get user list\n"
-                         "2. Sent a message\n"
-                         "3. Get my messages\n"
-                         "4.Create a new channel\n"
-                         "5. Chat in a channel with your friends\n"
-                         "6. Disconnect from server\n"
-                         "Your option <enter a number>:"
-                         ))
+        print("****** TCP Message App ******\n"
+              "1. Get user list\n"
+              "2. Sent a message\n"
+              "3. Get my messages\n"
+              "4. Create a new channel\n"
+              "5. Join a channel with your friends\n"
+              "6. Disconnect from server")
+        try:
+            return int(input("Your option <enter a number>:"))
+        except ValueError:
+            return -1
 
     def handle_menu_selection(self, menu_selection):
         if menu_selection == 1:
@@ -37,10 +45,14 @@ class TCPClientHandler:
             print(data['msg'])
         elif menu_selection == 4:
             # Create a new channel
-            delete_me_later = "removing errors by putting this message"
+            host = input("Enter the ip address of the new channel:")
+            port = int(input("Enter the port to listen for new users:"))
+            self.create_new_channel(host, port)
         elif menu_selection == 5:
             # Chat in a channel with your friends
-            delete_this = "delete me when implementing"
+            host = input("Enter the ip address of the channel:")
+            port = int(input("Enter the port for the channel:"))
+            self.connect_to_channel(host, port)
         elif menu_selection == 6:
             # Disconnect from the server
             self.send_message(6)
@@ -48,6 +60,86 @@ class TCPClientHandler:
             if confirmed_disconnect['msg'] == "disconnected":
                 print("You Disconnected!")
                 self.disconnected = True
+
+    def create_new_channel(self, host, port):
+        # build channel
+        channel = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        channel.bind((host, port))
+        channel.listen(5)
+        print("Channel Info:\nIP Address:" + host + "\nChannel client id:" + str(port))
+        print("Waiting for users...")
+        # Event Loop
+        while True:
+            try:
+                client_socket, addr = channel.accept()  # Note: addr[0] is client IP, addr[1] is socket id
+                self.channel_socket_list.append(client_socket)  # save ref to all sockets
+                threading.Thread(target=self.handle_channel_connection, args=(client_socket, addr[1])).start()
+            except socket.error as socket_exception:
+                print(socket_exception)
+                break
+
+        self.channel_socket_list = []
+
+    # server side threaded per socket connection
+    def handle_channel_connection(self, client_socket, user_id):
+        def message_all_clients(_req):
+            for _socket in self.channel_socket_list:  # send message to all connected clients
+                if _socket != client_socket:  # don't message yourself
+                    try:
+                        _socket.send(_req)
+                    except socket.error:
+                        pass
+
+        data_from_req = None
+        while True:
+            try:
+                req = client_socket.recv(1024)
+                data_from_req = pickle.loads(req)
+                print(data_from_req['user_name'] + ": " + data_from_req['msg'])
+                message_all_clients(req)
+            except socket.error as e:
+                break
+            except EOFError:
+                break
+        username = data_from_req['user_name']
+        print("client " + str(user_id) + " (" + username + ") disconnected!")
+        self.channel_socket_list.remove(client_socket)
+        message_all_clients(pickle.dumps({'user_name': username, 'msg': "Disconnected"}))
+        client_socket.close()
+
+    # client side
+    def connect_to_channel(self, host, port):
+        channel_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        channel_connection.connect((host, port))
+
+        def receive_from_channel(channel, _):
+            while True:
+                try:
+                    data = pickle.loads(channel.recv(1024))
+                    print(data['user_name'] + ": " + data['msg'])
+                except socket.error as _e:
+                    if _e.errno == 10053:
+                        break
+        threading.Thread(target=receive_from_channel, args=(channel_connection, '_')).start()
+        try:
+            def send_to_channel(message, username):
+                res = {"msg": message, "user_name": username}
+                res_serialized = pickle.dumps(res)
+                channel_connection.send(res_serialized)
+
+            send_to_channel("Connected", self.username)  # send user connected message
+            while True:
+                user_input = input()
+                send_to_channel(user_input, self.username)
+                if user_input.__eq__("bye"):
+                    print("You disconnected from the channel!")
+                    break
+        except socket.error as e:
+            if e.errno == 10053 or e.errno == 10054:
+                print("Channel disconnected unexpectedly")
+            else:
+                print(e)
+        channel_connection.close()
 
     def send_message(self, menu_option, message="", recipient_id=None):
         data = {"msg": message,
@@ -61,11 +153,5 @@ class TCPClientHandler:
         self.client.send(data_serialized)
 
     def receive_message(self):
-        try:
-            server_response = self.client.recv(1024)
-        except self.client.error as e:
-            if e.errno == 10053 or e.errno == 10054:
-                print("Server Connection Dropped!! (Server might be down)")
-                print(e)
-                exit()
+        server_response = self.client.recv(1024)
         return pickle.loads(server_response)

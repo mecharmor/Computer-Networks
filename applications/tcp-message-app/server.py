@@ -7,7 +7,9 @@ from collections import defaultdict
 
 
 class Server:
-    def __init__(self):
+    def __init__(self, host, port):
+        self.host = host
+        self.port = int(port)
         self.connected_users = {}
         self.chat_history = defaultdict(list)
         self.lock = Lock()
@@ -41,15 +43,12 @@ class Server:
         self.lock.release()
 
     def start_server(self):
-        host = "localhost"
-        port = 8008
-
         # build server
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server.bind((host, port))
+        server.bind((self.host, self.port))
         server.listen(5)
-        print("IP Address: " + host)
-        print("listening on port " + str(port) + " ...")
+        print("IP Address: " + self.host)
+        print("listening on port " + str(self.port) + " ...")
         print("Waiting for connections...")
 
         # Event Loop
@@ -129,26 +128,7 @@ class Server:
         client_socket.close()
 
 
-Server_ = Server()
+Host_ = "localhost"
+Port_ = 8008
+Server_ = Server(Host_, Port_)
 Server_.start_server()
-
-# server_msg = None
-# if menu_option == 3:
-#     server_msg = getHistoryOfClient(client_id)
-
-# if menu_option == 1:
-#
-# # get user list
-# elif menu_option == 2:
-#
-# # sent a message
-# elif menu_option == 3:
-# # get my messages
-# elif menu_option == 4:
-# # create a new channel
-# elif menu_option == 5:
-# # create chat in a channel with your friends
-# elif menu_option == 6:
-#     # disconnect from server
-#     print(client_id + " disconnected")
-#     break
