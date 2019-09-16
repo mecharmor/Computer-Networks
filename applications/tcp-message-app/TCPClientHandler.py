@@ -65,6 +65,7 @@ class TCPClientHandler:
                     except socket.error:
                         pass
                     break
+            self.channel.close()
 
         elif menu_selection == 5:
             # Chat in a channel with your friends
@@ -82,21 +83,21 @@ class TCPClientHandler:
 
     def create_new_channel(self, host, port, channel_socket_list):
         # build channel
-        channel = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        channel.bind((host, port))
-        channel.listen(5)
+        self.channel = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.channel.bind((host, port))
+        self.channel.listen(5)
         print("Channel Info:\nIP Address:" + host + "\nChannel client id:" + str(port))
         print("Waiting for users...")
         # Event Loop
         while self.channel_running:
             try:
-                client_socket, addr = channel.accept()  # Note: addr[0] is client IP, addr[1] is socket id
+                client_socket, addr = self.channel.accept()  # Note: addr[0] is client IP, addr[1] is socket id
                 channel_socket_list.append(client_socket)  # save ref to all sockets
                 threading.Thread(target=self.handle_channel_connection, args=(client_socket, addr[1], channel_socket_list)).start()
             except socket.error as socket_exception:
                 print(socket_exception)
                 break
-        channel.close()
+        self.channel.close()
 
     # server side threaded per socket connection
     def handle_channel_connection(self, client_socket, user_id, channel_socket_list):
@@ -145,8 +146,6 @@ class TCPClientHandler:
                 except EOFError:
                     break
 
-        channel_connection.close()
-
         threading.Thread(target=receive_from_channel, args=(channel_connection, '_')).start()  # start thread so console still outputs
         try:
             def send_to_channel(message, username):
@@ -160,6 +159,7 @@ class TCPClientHandler:
                 if user_input.__eq__("bye"):
                     break
         except socket.error as e:
+            print(e)
             pass
 
         print("Disconnected from the channel")
