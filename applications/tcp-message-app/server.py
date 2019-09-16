@@ -35,8 +35,8 @@ class Server:
     def disconnect_user(self, client_id):
         self.lock.acquire()
         try:
-            self.chat_history.pop(client_id)  # delete chat history
             self.connected_users.pop(client_id)  # remove from connected users
+            self.chat_history.pop(client_id)  # delete chat history
         except KeyError:
             pass
         print("Client " + str(client_id) + " disconnected from this server")
