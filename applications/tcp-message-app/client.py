@@ -39,13 +39,10 @@ class Client:
 
             while True:
                 menu_selection = self.tcp_handler.next_prompt()
-                message_to_send = None
                 if menu_selection not in range(1, 7):
                     print("Incorrect option entered. please enter a real menu option")
                     continue
-                elif menu_selection == 2:
-                    message_to_send = input("Send: ")
-                self.tcp_handler.handle_menu_selection(menu_selection, message_to_send)
+                self.tcp_handler.handle_menu_selection(menu_selection)
                 # terminate client if disconnect occurs
                 if self.tcp_handler.is_disconnected() is True:
                     break
