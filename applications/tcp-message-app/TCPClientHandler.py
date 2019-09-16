@@ -76,10 +76,8 @@ class TCPClientHandler:
         elif menu_selection == 6:
             # Disconnect from the server
             self.send_message(6)
-            confirmed_disconnect = self.receive_message()
-            if confirmed_disconnect['msg'] == "disconnected":
-                print("You Disconnected!")
-                self.disconnected = True
+            print("You Disconnected!")
+            self.disconnected = True
 
     def create_new_channel(self, host, port, channel_socket_list):
         # build channel
