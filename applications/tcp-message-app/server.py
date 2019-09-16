@@ -2,6 +2,7 @@ import socket
 import pickle
 import datetime
 import threading
+from threading import Lock
 from collections import defaultdict
 
 
@@ -9,6 +10,7 @@ class Server:
     def __init__(self):
         self.connected_users = {}
         self.chat_history = defaultdict(list)
+        self.lock = Lock()
         # Note to self: NEVER STORE client_socket here!!!
 
     def send_message(self, client_socket, server_msg, menu_option, client_id, username):
@@ -29,9 +31,14 @@ class Server:
         return msgs
 
     def disconnect_user(self, client_id):
+        self.lock.acquire()
+        try:
+            self.chat_history.pop(client_id)  # delete chat history
+            self.connected_users.pop(client_id)  # remove from connected users
+        except KeyError:
+            pass
         print("Client " + str(client_id) + " disconnected from this server")
-        self.chat_history.pop(client_id)  # delete chat history, [issue] tries to pop value that does not exist. check if key exists
-        self.connected_users.pop(client_id)  # remove from connected users
+        self.lock.release()
 
     def start_server(self):
         host = "localhost"
