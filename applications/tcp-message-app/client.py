@@ -51,7 +51,6 @@ class Client:
                 print("Server Connection Dropped!! (Server might be down)")
             else:
                 print(e)
-            input("Press Enter To Exit")
         self.client.close()
 
 
@@ -62,3 +61,4 @@ Username_ = input("Your id key (i.e your name): ")
 # Start Server
 client = Client(Username_, Host_, Port_)
 client.connect()
+input("Enter to close")
