@@ -128,7 +128,7 @@ class Server:
         client_socket.close()
 
 
-Host_ = "localhost"
-Port_ = 8008
+Host_ = input("Enter the server IP Address (e.g, localhost):")
+Port_ = int(input("Enter the server port:"))
 Server_ = Server(Host_, Port_)
 Server_.start_server()

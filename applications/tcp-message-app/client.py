@@ -54,8 +54,8 @@ class Client:
         self.client.close()
 
 
-Host_ = 'localhost'  # input("Enter the server IP Address: ")
-Port_ = 8008  # input("Enter the server port: ")
+Host_ = input("Enter the server IP Address: ")
+Port_ = int(input("Enter the server port: "))
 Username_ = input("Your id key (i.e your name): ")
 
 # Start Server
