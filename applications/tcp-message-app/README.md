@@ -24,3 +24,8 @@ due to sockets being closed or connections dropped which challenged my error han
     crash it in some way which revealed areas that needed proper error handling. I managed to get the channel to display live feed
 of messages (EXTRA CREDIT?) but this proved difficult due to the input() block which forced me to create more threads to display.
 
+## Sample Runs of options 4 and 5. EXTRA credit #2 included in second gif.
+
+### [VIEW create channel and connect gif](https://github.com/sfsu-joseo/csc645-01-fall2019-projects-mecharmor/blob/master/applications/tcp-message-app/sample%20runs/create%20and%20connect%20to%20channel.gif)
+
+### [VIEW Extra credit #2 live channel updates](https://github.com/sfsu-joseo/csc645-01-fall2019-projects-mecharmor/blob/master/applications/tcp-message-app/sample%20runs/connect%20to%20channel%20extra%20credit%20(2).gif)
