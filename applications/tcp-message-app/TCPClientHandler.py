@@ -147,7 +147,7 @@ class TCPClientHandler:
         threading.Thread(target=receive_from_channel, args=(channel_connection, '_')).start()  # start thread so console still outputs
         try:
             def send_to_channel(message, username):
-                res = {"msg": message, "user_name": username}
+                res = {'msg': message, 'user_name': username}
                 res_serialized = pickle.dumps(res)
                 channel_connection.send(res_serialized)
             send_to_channel("Connected", self.username)  # send user connected message
