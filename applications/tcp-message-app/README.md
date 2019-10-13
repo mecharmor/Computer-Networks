@@ -13,7 +13,7 @@ Comments:
 
 * In option 1, when I request the list of connected clients, it also shows the ones that were disconnected. 
 
-* In option 5, when two clients are talking between them, one of them do not receive the text from the other. It only shows in screen input from that client. Also, you don't provide a way to exit from the channel without closing the client. 
+* In option 5, when two clients are talking between them, one of them does not receive the text from the other. It only shows in screen input from that client. Also, you don't provide a way to exit from the channel without closing the client. 
 
 * When I desconnect clients closing the terminal windows, the server does not ackownledges that the connection from those clients was closed. This is one important step that you needed to implement by yourself. 
 
