@@ -19,6 +19,8 @@ Comments:
 
 * Sorry too many minor mistakes that were expected to be handled and are important in computer networks. 
 
+* In my end, your extracredit is not working. I know you implemented that because is on the video below, but it needs to be compatible with OSX and LINUX versions of UNIX environments as well. Come to my office hours, and show me that your extracredit works, and I will give you more points for this assignment,
+
 #
 * Multithreaded Client/Server TCP Message APP With Primitive Sockets
 * Description: TCP Client/Server app that uses the socket library in python to develop a server and client class that utilize these sockets in
