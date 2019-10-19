@@ -1,18 +1,21 @@
 """
 Proxy thread file. Implements the proxy thread class and all its functionality. 
 """
+import socket
 
 from proxy_manager import ProxyManager
 import pickle
 # IMPORTANT READ BELOW NOTES. Otherwise, it may affect negatively your grade in this assignment
 # Note about requests library
-# use this library only to make request to the original server inside the appropiate class methods
+# use this library only to make request to the original server inside the appropriate class methods
 # you need to create your own responses when sending them to the client (headers and body)
 # request from client to the proxy are just based on url and private mode status. client also
-# will send post requests if the proxy server requires authentification for some sites.
+# will send post requests if the proxy server requires authentication for some sites.
 import requests
 
+
 class ProxyThread(object):
+    MAX_DATA_RECV = 4096
     """
     The proxy thread class represents a threaded proxy instance to handle a specific request from a client socket
     """
@@ -35,10 +38,7 @@ class ProxyThread(object):
         return 0
 
     def client_id(self):
-        """
-        :return: the client id
-        """
-        return 0
+        return self.client_id
 
     def _mask_ip_adress(self):
         """
@@ -49,7 +49,7 @@ class ProxyThread(object):
         return 0
 
     def process_client_request(self, data):
-       """
+        """
        Main algorithm. Note that those are high level steps, and most of them may
        require futher implementation details
        1. get url and private mode status from client 
@@ -68,23 +68,22 @@ class ProxyThread(object):
        :param data: 
        :return: VOID
        """
-       return 0
-
-
+        return 0
 
     def _send(self, data):
-        """
-        Serialialize data 
-        send with the send() method of self.client
-        :param data: the response data
-        :return: VOID
-        """
+        try:
+            serialized = pickle.dumps(data)
+            self.client.send(serialized)
+        except socket.error as err:
+            print("proxy_thread send failed with error %s" % err)
+        return
 
     def _receive(self):
-        """
-        deserialize the data 
-        :return: the deserialized data
-        """
+        try:
+            data = self.client.recv(self.MAX_DATA_RECV)
+            return pickle.loads(data)
+        except socket.error as err:
+            print("proxy_thread receive failed with error %s " % err)
         return 0
 
     def head_request_to_server(self, url, param):
@@ -104,7 +103,6 @@ class ProxyThread(object):
         :return: the complete response including the body of the response
         """
         return 0
-
 
     def response_from_server(self, request):
         """
@@ -134,4 +132,3 @@ class ProxyThread(object):
         :return: the response that will be passed as a parameter to the method send_response_to_client()
         """
         return 0
-

@@ -7,14 +7,15 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-   return render_template('home.html')
+    return render_template('home.html')
+
 
 @app.route('/proxy-settings')
 def proxy_settings():
     return render_template('proxy-settings.html')
 
-@app.route('/home.html', methods=['POST'])
 
+@app.route('/home.html', methods=['POST'])
 def get_user_input():
     url = request.form.get('url')
     is_private_mode = 0
@@ -24,6 +25,7 @@ def get_user_input():
         return proxy_settings()
     data = {'url': url, 'is_private_mode': is_private_mode}
     return str(data)
+
 
 if __name__ == '__main__':
     app.run()
