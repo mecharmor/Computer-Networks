@@ -13,40 +13,40 @@ class Client(object):
     def init_socket(self):
         try:
             self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            print "Socket successfully created"
+            print("Socket successfully created")
         except socket.error as err:
-            print "socket creation failed with error %s" % (err)
+            print("socket creation failed with error %s" % err)
 
     def _connect_to_server(self, host_ip, port):
-        """
-        Connects to server 
-        remember to handle exceptions
-        :param host_ip: 
-        :param port: 
-        :return: VOID
-        """
+        try:
+            self.client_socket.connect((host_ip, port))
+        except socket.error. as err:
+            print("socket connection failed with error: %s" % err)
         return 0
 
     def _send(self, data):
-        """
-        1. Serialize data
-        2. implements the primitive send() call from the socket
-        :param data: {url: url, private_mode: True or false}
-        :return: VOID
-        """
+        try:
+            serialized = pickle.dumps(data)
+            self.client_socket.send(serialized)
+        except socket.error as err:
+            print("socket send failed with error: %s" % err)
         return 0
 
     def _receive(self):
-        """
-        1. Implements the primitive rcv() method from socket
-        2. Desirialize data after it is recieved
-        :return: the desirialized data 
-        """
-        return 0
+        try:
+            data = self.client_socket.recv(4096)
+            return pickle.loads(data)
+        except socket.error as err:
+            print("socket recv failed with error %s" % err)
+
+        return {}
 
     def request_to_proxy(self, data):
+
+        # self._send() this send goes to proxy_server which routes to proxy_thread
+
         """
-        Create the request from data 
+        Create the request from data
         request must have headers and can be GET or POST. depending on the option
         then send all the data with _send() method
         :param data: url and private mode 
