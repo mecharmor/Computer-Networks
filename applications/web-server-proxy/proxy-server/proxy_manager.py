@@ -1,7 +1,8 @@
 # This file contains the ProxyManager class which handle all the operations
 # done in the proxy-settings page of the project
 
-
+import os
+import cache
 from cache import *  # point of access to cache files
 
 
@@ -33,7 +34,6 @@ class ProxyManager:
         return self.proxy_admins
 
     def is_admin(self, email, passw):
-
         for d in self.proxy_admins:
             if d['email'] == email and d['passw'] == passw:
                 return True  # Return True when is_admin
@@ -46,13 +46,12 @@ class ProxyManager:
         return self.sites_blocked
 
     def is_site_blocked(self, request):
-        """
-        1. Get all the sites blocked
-        2. Check if the url in the request is blocked
-        :param request: 
-        :return: true if the site is blocked, otherwise, false
-        """
-        return 0
+        url = request['url']
+
+        for d in self.sites_blocked:
+            if d['url'] == url:
+                return True
+        return False
 
     def add_manager(self, email, password):
         self.managers_credentials.append({'email': email, 'passw': password})
@@ -61,10 +60,20 @@ class ProxyManager:
         for d in self.managers_credentials:
             if d['email'] == email and d['passw'] == password:
                 return True
-
         return False
 
     def is_cached(self, request):
+        url = request['url']
+        is_private_mode = request['is_private_mode']
+
+        path_to_cache_files = os.getcwd() + "/cache/"
+        path_to_resources = path_to_cache_files + "/resources/"
+
+        return os.path.exists(path_to_cache_files + "tests.py") #replace test.py with the queried cache file
+        # htmlBody = open( + url, "r").read()
+
+
+        #Information regarding how to open and read files in python are here
         """
         Optional method but really helpful. 
         Checks if a url is already in the cache 
@@ -77,6 +86,7 @@ class ProxyManager:
         return 0
 
     def get_cached_resource(self, request):
+        
         """
         1. Extract url and private mode status from the request 
         2. Go to cache folder and locate if the resources
@@ -107,3 +117,8 @@ class ProxyManager:
         :return: VOID
         """
         return 0
+
+#
+# print("TEST OUTPUT")
+# manager = ProxyManager()
+# print(manager.is_cached({'url': "www.google.com", 'is_private_mode': 0}))

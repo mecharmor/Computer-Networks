@@ -43,8 +43,10 @@ class Client(object):
 
     def request_to_proxy(self, data):
 
+        # self._send() this send goes to proxy_server which routes to proxy_thread
+
         """
-        Create the request from data 
+        Create the request from data
         request must have headers and can be GET or POST. depending on the option
         then send all the data with _send() method
         :param data: url and private mode 
