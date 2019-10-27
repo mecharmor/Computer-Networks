@@ -4,13 +4,11 @@ Proxy thread file. Implements the proxy thread class and all its functionality.
 import socket
 from proxy_manager import ProxyManager
 import pickle
-# IMPORTANT READ BELOW NOTES. Otherwise, it may affect negatively your grade in this assignment
-# Note about requests library
-# use this library only to make request to the original server inside the appropriate class methods
-# you need to create your own responses when sending them to the client (headers and body)
-# request from client to the proxy are just based on url and private mode status. client also
-# will send post requests if the proxy server requires authentication for some sites.
-import requests
+import email
+import pprint
+import datetime
+from io import StringIO
+import requests # use carefully
 
 
 class ProxyThread(object):
@@ -18,45 +16,43 @@ class ProxyThread(object):
     """
     The proxy thread class represents a threaded proxy instance to handle a specific request from a client socket
     """
+    DEBUG = True
 
     def __init__(self, conn, client_addr):
         self.proxy_manager = ProxyManager()
         self.client = conn
         self.client_id = client_addr[1]
+        self.mask_ip = False
+
+        if self.DEBUG:
+            print("[proxy_thread.py -> __init__] new instance of ProxyThread() class ")
 
     def get_settings(self):
+        if self.DEBUG:
+            print("[proxy_thread.py -> get_settings] called ")
         return self.proxy_manager
 
     def init_thread(self):
         while True:
             try:
-                data = self.client.recv(self.MAX_DATA_RECV)
-                deserialized = pickle.loads(data)
-                self.process_client_request(deserialized)
+                data = self._receive() #receiving {'url': url, 'is_private_mode': 0 or 1} from client from web-proxy-server
+                self.process_client_request(data)
+                if self.DEBUG:
+                    print("[proxy_thread.py -> init_thread] data received. data: " + data)
+            except socket.error as err:
+                print("err")
 
     def client_id(self):
+        if self.DEBUG:
+            print("[proxy_thread.py -> client_id] called. returned: " + self.client_id)
         return self.client_id
 
     def _mask_ip_adress(self):
-        """
-        When private mode, mask ip address to browse in private
-        This is easy if you think in terms of client-server sockets
-        :return: VOID
-        """
-        return 0
+        self.mask_ip = True
+        if self.DEBUG:
+            print("[proxy_thread.py -> _mask_ip_address] set self.mask_ip to: " + self.mask_ip)
 
     def process_client_request(self, data):
-        url = data['url']
-        is_private_mode = data['is_private_mode']
-
-        if is_private_mode :
-            self._mask_ip_adress()
-        if self.proxy_manager.is_cached(data) and is_private_mode == 0: #3
-            #3.1
-        else: #what happens when we are in private mode?
-            self.get_request_to_server(self, url, )
-
-
 
         """
        Main algorithm. Note that those are high level steps, and most of them may
@@ -83,28 +79,35 @@ class ProxyThread(object):
         try:
             serialized = pickle.dumps(data)
             self.client.send(serialized)
+            if self.DEBUG:
+                print("[proxy_thread.py -> _send] sent data to client: " + data)
         except socket.error as err:
             print("proxy_thread send failed with error %s" % err)
         return
 
     def _receive(self):
         try:
-            data = self.client.recv(self.MAX_DATA_RECV)
-            return pickle.loads(data)
+            serialized = self.client.recv(self.MAX_DATA_RECV)
+            data = pickle.loads(serialized)
+            if self.DEBUG:
+                print("[proxy_thread.py -> _receive] received data from Client: " + data)
+            return data
         except socket.error as err:
             print("proxy_thread receive failed with error %s " % err)
         return 0
 
     def head_request_to_server(self, url, param):
-        return requests.head(url + param).headers
-        """
-        HEAD request does not return the HTML of the site
-        :param url:
-        :param param: parameters to be appended to the url
-        :return: the headers of the response from the original server
-        """
+        #[issue], incomplete
+        session = requests.session()
+        # check params
+        # need to check HTTP 1.0 for connection close or 1.1 for keep alive
+        session.headers['Connection'] = 'close'
+        return requests.head(url).headers
 
     def get_request_to_server(self, url, param):
+        #[issue], incomplete
+        session = requests.session()
+        session.headers['Connection'] = 'close'
         return requests.get(url, param)
 
     def response_from_server(self, request):
@@ -122,34 +125,109 @@ class ProxyThread(object):
         return self.head_request_to_server(url, param)
 
     def send_response_to_client(self, data):
-        """
-                GET /index.html HTTP/1.1\r\n
-        Host: www-net.cs.umass.edu\r\n
-        User-Agent: Firefox/3.6.10\r\n
-        Connection: close\r\n
-        Accept: text/html,application/xhtml+xml\r\n
-        Accept-Language: en-us,en;q=0.5\r\n
-        Accept-Encoding: gzip,deflate\r\n
-        Accept-Charset: ISO-8859-1,utf-8;q=0.7\r\n
-        Keep-Alive: 115\r\n
-        Connection: keep-alive\r\n
-        \r\n
+        #[issue], parse data here
+        converted = self.create_response_for_client("1.1", "REPLACE_ME", "<! DOCTYPE html>", 200)
+        self._send(converted)
 
-        The response sent to the client must contain at least the headers and body of the response 
-        :param data: a response created by the proxy. Please check slides for response format
-        :return: VOID
-        """
-        return 0
+    def create_response_for_client(self,http_version, last_modified, html, status_code = 200):
 
-    def create_response_for_client(self):
-        """
-        
-        :return: the response that will be passed as a parameter to the method send_response_to_client()
-        """
-        return 0
+        #[issue] default for testing
+        last_modified = "Tue, 30 Oct 2007 17:00:02"
+        date = datetime.datetime.now()
+        status_code = 200
+
+        response = """HTTP/""" + str(http_version) + " " + str(status_code) + """\r\n"""
+        response += """Date: """ + str(date) + """\r\n"""
+        response += """Last-Modified: """ + str(last_modified) + """\r\n"""
+        if str(http_version) == "1.1":
+            response += """Connection: close\r\n"""
+            response += """Keep-Alive: 0\r\n"""
+        response += """\r\n"""
+        response += html #attach html
+
+
+        if self.DEBUG:
+            print("[proxy_thread.py -> create_response_for_client] response constructed: " + response)
+
+        return response
+
+
+    def httpRequestToDictionary(request_string):
+        # seperate first line and headers + body
+        Top, headers = request_string.split("\r\n", 1)
+        Top = Top.split(' ') # Top is the top of the reseponse: GET www.google.com HTTP/1.1
+        request = {}
+        request['method'] = Top[0]
+        request['url'] = Top[1]
+        request['http'] = Top.split('/')[-1]
+        request['header'] = dict(email.message_from_file(StringIO(headers)).items()) #parse headers and turn into dictionary
+        request['body'] = request_string.split("\r\n")[-1] # extract body
+
+        if self.DEBUG:
+            print("[proxy_thread.py -> httpRequestToDictionary] dictionary created: " + request)
+
+        return request
+
+    def httpResponseToDictionary(response_string):
+        # seperate first line and rest
+        head, tail = response_string.split("\r\n", 1)
+        head = head.split(' ') # head is the top of the response: HTTP/1.1 200 OK\r\n
+        response = {}
+        response['http'] = head[0].split('/')[-1]
+        response['http_code'] = head[1]
+        response['headers'] = dict(email.message_from_file(StringIO(tail)).items()) #parse headers and turn into dictionary
+        response['body'] = response_string.split("\r\n")[-1] # extract body
+
+        if self.DEBUG:
+            print("[proxy_thread.py -> httpResponseToDictionary] converted to dictionary: " + response)
+
+        return response
+
 
 
 # print("Unit Test for Proxy_thread")
 #
 # pt = ProxyThread()
 # print(pt.get_request_to_server("http://www.google.com", "Connection: close"))
+
+
+
+
+
+
+# REFERENCE MATERIAL
+
+# format of response string
+# HTTP/1.1 200 OK\r\n
+# Date: Sun, 26 Sep 2010 20:09:20 GMT\r\n
+# Server: Apache/2.0.52 (CentOS)\r\n
+# Last-Modified: Tue, 30 Oct 2007 17:00:02 GMT\r\n
+# ETag: "17dc6-a5c-bf716880"\r\n
+# Accept-Ranges: bytes\r\n
+# Content-Length: 2652\r\n
+# Keep-Alive: timeout=10, max=100\r\n
+# Connection: Keep-Alive\r\n
+# Content-Type: text/html; charset=ISO-8859-1\r\n
+# \r\n
+# data data data data data ...
+
+# garbage
+        # url = data['url']
+        # is_private_mode = data['is_private_mode']
+
+        # if is_private_mode == True or is_private_mode == 1:
+        #     self._mask_ip_adress()
+            
+        # if self.proxy_manager.is_cached(url) and not is_private_mode:
+        #     #do 3.1
+        #     if not self.proxy_manager.is_site_blocked(url):
+        #     # 3.2 check if site require credentials for this employee
+        #         #self.send_response_to_client() POST request
+        #         response = self.response_from_server({'mode': 'HEAD', 'url': url, 'param': []})
+        #         response_dict = self.httpResponseToDictionary(response)
+        #         cached_resource = self.proxy_manager.get_cached_resource(url) # get resource
+        #         #get last modified date and compare with cached_resource['Last-Modified'] == response['header']['Last-Modified']
+        #         if True: # if cache and response dates are same
+        #             self.send_response_to_client()
+
+        # elif 

@@ -5,8 +5,8 @@ import os
 import cache
 from cache import *  # point of access to cache files
 
-
 class ProxyManager:
+    DEBUG = True
     """
     Manages all the elements from cache and proxy-settings page
     """
@@ -15,16 +15,17 @@ class ProxyManager:
         self.init_settings()
 
     def init_settings(self):
-        # Credentials for admins allowed to edit the proxy seetings page
-        # append data in the form {'email: email, 'passw': passw}
-        self.proxy_admins = []
-        self.sites_blocked = []
-        # Credentials allowed employees that can browse in private mode
-        # append data in the form {'email: email, 'passw': passw}
-        self.private_mode_auth = []
-        # Credentials  of upper division employess
-        # append data in the form {'email: email, 'passw': passw}
-        self.managers_credentials = []
+        # # Credentials for admins allowed to edit the proxy seetings page
+        # # append data in the form {'email: email, 'passw': passw}
+        # self.proxy_admins = []
+        # self.sites_blocked = []
+        # # Credentials allowed employees that can browse in private mode
+        # # append data in the form {'email: email, 'passw': passw}
+        # self.private_mode_auth = []
+        # # Credentials  of upper division employess
+        # # append data in the form {'email: email, 'passw': passw}
+        # self.managers_credentials = []
+        return 0
 
     def add_admin(self, email, passw):
         self.proxy_admins.append({'email': email, 'passw': passw})
@@ -122,3 +123,5 @@ class ProxyManager:
 # print("TEST OUTPUT")
 # manager = ProxyManager()
 # print(manager.is_cached({'url': "www.google.com", 'is_private_mode': 0}))
+
+
