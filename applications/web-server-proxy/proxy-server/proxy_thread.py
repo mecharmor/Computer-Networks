@@ -8,7 +8,8 @@ import email
 import pprint
 import datetime
 from io import StringIO
-import requests # use carefully
+import requests # use sparingly
+from httpHelper.httpHelper import HttpHelper
 
 
 class ProxyThread(object):
@@ -18,11 +19,12 @@ class ProxyThread(object):
     """
     DEBUG = True
 
-    def __init__(self, conn, client_addr):
+    def __init__(self, conn, client_addr, server_ip):
         self.proxy_manager = ProxyManager()
         self.client = conn
-        self.client_id = client_addr[1]
-        self.mask_ip = False
+        self.client_id = client_addr[1] # get id
+        self.client_ip = client_addr[0] #get ip address
+        self.server_ip = server_ip
 
         if self.DEBUG:
             print("[proxy_thread.py -> __init__] new instance of ProxyThread() class ")
@@ -48,32 +50,52 @@ class ProxyThread(object):
         return self.client_id
 
     def _mask_ip_adress(self):
-        self.mask_ip = True
+        self.client_ip = self.server_ip
         if self.DEBUG:
-            print("[proxy_thread.py -> _mask_ip_address] set self.mask_ip to: " + self.mask_ip)
+            print("[proxy_thread.py -> _mask_ip_address] set self.client_ip to: " + self.client_ip)
 
     def process_client_request(self, data):
+        p = HttpHelper()
+        d = p.convert_http_request_to_dict(data)
+        # Main algorithm. Note that those are high level steps, and most of them may
+        # require further implementation details
+        # 1. get url and private mode status from client 
+        url = d['url']
+        is_private_mode = d['header']['is_private_mode']
+        # 2. if private mode, then mask ip address: mask_ip_address method
+        if is_private_mode == 1:
+            self._mask_ip_adress()
+        # 3. check if the resource (site) is in cache. If so and not private mode, then:
+        if self.proxy_manager.is_cached(url) and is_private_mode == 0:
+        #     3.1 check if site is blocked for this employee
+            if not self.proxy_manager.is_site_blocked(url):
+                dontBreak = " "
+        #     3.2 check if site require credentials for this employee
+                #[issue], legit no clue here
+        #     3.3 if 3.1 or 3.2 then then client needs to send a post request to proxy
+        #         with credentials to check 3.1 and 3.2 access 
+        #         3.3.1 if credentials are valid, send a HEAD request to the original server
+        #                 to check last_date_modified parameter. If the cache header for that 
+        #                 site is outdated then move to step 4. Otherwise, send a response to the 
+        #                 client with the requested site and the appropiate status code.
+        # 4. If site is not in cache, or last_data_modified is outdated, then create a GET request 
+        if self.proxy_manager.is_cached(url) == False or self.is_outdated_cache(url):
+            res = self.response_from_server({'mode': 'GET', 'url': url, 'param': []} )
+            #res.headers
+            if self.DEBUG:
+                print("url: " + url + " status code: " + str(res.status_code))
+            print(str(res.headers))
+            self.proxy_manager.add_cached_resource(url, res.headers['last-modified'], res.content)
 
-        """
-       Main algorithm. Note that those are high level steps, and most of them may
-       require further implementation details
-       1. get url and private mode status from client 
-       2. if private mode, then mask ip address: mask_ip_address method
-       3. check if the resource (site) is in cache. If so and not private mode, then:
-           3.1 check if site is blocked for this employee 
-           3.2 check if site require credentials for this employee
-           3.3 if 3.1 or 3.2 then then client needs to send a post request to proxy
-               with credentials to check 3.1 and 3.2 access 
-               3.3.1 if credentials are valid, send a HEAD request to the original server
-                     to check last_date_modified parameter. If the cache header for that 
-                     site is outdated then move to step 4. Otherwise, send a response to the 
-                     client with the requested site and the appropiate status code.
-        4. If site is not in cache, or last_data_modified is outdated, then create a GET request 
-           to the original server, and store in cache the response from the server. 
-       :param data: 
-       :return: VOID
-       """
-        return 0
+    def is_outdated_cache(self, url):
+        list_of_cached = self.proxy_manager.get_cached_resource('cache')
+        for item in list_of_cached:
+            if item['url'] == url:
+                headers = self.response_from_server({'mode': 'HEAD', 'url': url, 'param': []} )
+                return headers['last-modified'] == item['last_modified']
+        return True
+
+        
 
     def _send(self, data):
         try:
@@ -96,19 +118,41 @@ class ProxyThread(object):
             print("proxy_thread receive failed with error %s " % err)
         return 0
 
-    def head_request_to_server(self, url, param):
-        #[issue], incomplete
+    def head_request_to_server(self, url, param = ""):
         session = requests.session()
-        # check params
-        # need to check HTTP 1.0 for connection close or 1.1 for keep alive
         session.headers['Connection'] = 'close'
-        return requests.head(url).headers
+        session.headers['Keep-Alive'] = '0'
+
+        try:
+            response = session.head(url + param)
+            if self.DEBUG:
+                print("head_request_to_server: " + response)
+            return response.headers # .headers is a dictionary
+        except requests.exceptions.MissingSchema:
+            #retry logic
+            print("request failed. retrying with http:// added to url") 
+            response = session.head('http://' + url + param)
+            if self.DEBUG:
+                print("head_request_to_server: " + response)
+            return response.headers # .headers is a dictionary
 
     def get_request_to_server(self, url, param):
-        #[issue], incomplete
         session = requests.session()
         session.headers['Connection'] = 'close'
-        return requests.get(url, param)
+        session.headers['Keep-Alive'] = '0'
+
+        try:
+            response = session.get(url) #[issue] param list handle elsewhere
+            if self.DEBUG:
+                print("get_request_to_server: " + str(response))
+            return response # .headers, .content, .json, .status_code
+        except requests.exceptions.MissingSchema:
+            #retry logic
+            print("request failed. retrying with http:// added to url") 
+            response = session.get('http://' + url) #[issue], param list handle somehow
+            if self.DEBUG:
+                print("get_request_to_server: " + str(response))
+            return response
 
     def response_from_server(self, request):
         """
@@ -125,63 +169,39 @@ class ProxyThread(object):
         return self.head_request_to_server(url, param)
 
     def send_response_to_client(self, data):
+
+        #[issue, NEED TO SEND DATA TO CLIENT. RIGHT NOW DATA IS SAVED BUT NOT USED
         #[issue], parse data here
-        converted = self.create_response_for_client("1.1", "REPLACE_ME", "<! DOCTYPE html>", 200)
+        
+        #converted = self.create_response_for_client("1.1", "REPLACE_ME", "<! DOCTYPE html>", 200)
         self._send(converted)
 
-    def create_response_for_client(self,http_version, last_modified, html, status_code = 200):
+    # def create_response_for_client(self,http_version, last_modified, html, status_code = 200):
 
-        #[issue] default for testing
-        last_modified = "Tue, 30 Oct 2007 17:00:02"
-        date = datetime.datetime.now()
-        status_code = 200
+    #     # #[issue] default for testing
+    #     # last_modified = "Tue, 30 Oct 2007 17:00:02"
+    #     # date = datetime.datetime.now()
+    #     # status_code = 200
 
-        response = """HTTP/""" + str(http_version) + " " + str(status_code) + """\r\n"""
-        response += """Date: """ + str(date) + """\r\n"""
-        response += """Last-Modified: """ + str(last_modified) + """\r\n"""
-        if str(http_version) == "1.1":
-            response += """Connection: close\r\n"""
-            response += """Keep-Alive: 0\r\n"""
-        response += """\r\n"""
-        response += html #attach html
-
-
-        if self.DEBUG:
-            print("[proxy_thread.py -> create_response_for_client] response constructed: " + response)
-
-        return response
+    #     # response = """HTTP/""" + str(http_version) + " " + str(status_code) + """\r\n"""
+    #     # response += """Date: """ + str(date) + """\r\n"""
+    #     # response += """Last-Modified: """ + str(last_modified) + """\r\n"""
+    #     # if str(http_version) == "1.1":
+    #     #     response += """Connection: close\r\n"""
+    #     #     response += """Keep-Alive: 0\r\n"""
+    #     # response += """\r\n"""
+    #     # response += html #attach html
 
 
-    def httpRequestToDictionary(request_string):
-        # seperate first line and headers + body
-        Top, headers = request_string.split("\r\n", 1)
-        Top = Top.split(' ') # Top is the top of the reseponse: GET www.google.com HTTP/1.1
-        request = {}
-        request['method'] = Top[0]
-        request['url'] = Top[1]
-        request['http'] = Top.split('/')[-1]
-        request['header'] = dict(email.message_from_file(StringIO(headers)).items()) #parse headers and turn into dictionary
-        request['body'] = request_string.split("\r\n")[-1] # extract body
+    #     if self.DEBUG:
+    #         print("[proxy_thread.py -> create_response_for_client] response constructed: " + response)
 
-        if self.DEBUG:
-            print("[proxy_thread.py -> httpRequestToDictionary] dictionary created: " + request)
+    #     return response
 
-        return request
 
-    def httpResponseToDictionary(response_string):
-        # seperate first line and rest
-        head, tail = response_string.split("\r\n", 1)
-        head = head.split(' ') # head is the top of the response: HTTP/1.1 200 OK\r\n
-        response = {}
-        response['http'] = head[0].split('/')[-1]
-        response['http_code'] = head[1]
-        response['headers'] = dict(email.message_from_file(StringIO(tail)).items()) #parse headers and turn into dictionary
-        response['body'] = response_string.split("\r\n")[-1] # extract body
+   
 
-        if self.DEBUG:
-            print("[proxy_thread.py -> httpResponseToDictionary] converted to dictionary: " + response)
 
-        return response
 
 
 
