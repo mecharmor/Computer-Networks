@@ -13,7 +13,7 @@ from httpHelper.httpHelper import HttpHelper
 
 
 class ProxyThread(object):
-    MAX_DATA_RECV = 4096
+    MAX_DATA_RECV = 1000000000 #4096
     """
     The proxy thread class represents a threaded proxy instance to handle a specific request from a client socket
     """
@@ -85,7 +85,13 @@ class ProxyThread(object):
             if self.DEBUG:
                 print("url: " + url + " status code: " + str(res.status_code))
             print(str(res.headers))
-            self.proxy_manager.add_cached_resource(url, res.headers['last-modified'], res.content)
+            try:
+                self.proxy_manager.add_cached_resource(url, res.headers['last-modified'], res.content)
+            except KeyError as e:
+                print("proxy_thread, last-modified header did not exist: " + str(e))
+                self.proxy_manager.add_cached_resource(url, res.headers['date'], res.content)
+
+            self.send_response_to_client(res)
 
     def is_outdated_cache(self, url):
         list_of_cached = self.proxy_manager.get_cached_resource('cache')
@@ -169,35 +175,13 @@ class ProxyThread(object):
         return self.head_request_to_server(url, param)
 
     def send_response_to_client(self, data):
-
-        #[issue, NEED TO SEND DATA TO CLIENT. RIGHT NOW DATA IS SAVED BUT NOT USED
-        #[issue], parse data here
-        
-        #converted = self.create_response_for_client("1.1", "REPLACE_ME", "<! DOCTYPE html>", 200)
-        self._send(converted)
-
-    # def create_response_for_client(self,http_version, last_modified, html, status_code = 200):
-
-    #     # #[issue] default for testing
-    #     # last_modified = "Tue, 30 Oct 2007 17:00:02"
-    #     # date = datetime.datetime.now()
-    #     # status_code = 200
-
-    #     # response = """HTTP/""" + str(http_version) + " " + str(status_code) + """\r\n"""
-    #     # response += """Date: """ + str(date) + """\r\n"""
-    #     # response += """Last-Modified: """ + str(last_modified) + """\r\n"""
-    #     # if str(http_version) == "1.1":
-    #     #     response += """Connection: close\r\n"""
-    #     #     response += """Keep-Alive: 0\r\n"""
-    #     # response += """\r\n"""
-    #     # response += html #attach html
-
-
-    #     if self.DEBUG:
-    #         print("[proxy_thread.py -> create_response_for_client] response constructed: " + response)
-
-    #     return response
-
+        response_string = ""
+        try:
+            response_string = HttpHelper().build_http_response("1.1", str(data.status_code), data.headers['last-modified'], str(data.content))
+        except KeyError as e:
+            print("send_response_to_client, last-modified header does not exist: " + str(e))
+            response_string = HttpHelper().build_http_response("1.1", str(data.status_code), data.headers['date'], str(data.content))
+        self._send(response_string)
 
    
 
