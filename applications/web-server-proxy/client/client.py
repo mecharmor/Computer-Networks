@@ -1,5 +1,7 @@
 import socket
 import pickle
+import email
+from io import StringIO
 
 class HttpHelper:
 
@@ -11,29 +13,29 @@ class HttpHelper:
         head, tail = response_string.split("\r\n", 1)
         head = head.split(' ') # head is the top of the response: HTTP/1.1 200 OK\r\n
         response = {}
-        response['http'] = head[0].split('/')[-1]
+        response['http'] = head[0].split('/')[1]
         response['http_code'] = head[1]
         response['headers'] = dict(email.message_from_file(StringIO(tail)).items()) #parse headers and turn into dictionary
         response['body'] = response_string.split("\r\n")[-1] # extract body
 
         if self.DEBUG:
-            print("[httpHelper.py -> ] converted to dictionary: " + response)
+            print("[httpHelper.py -> ] converted to dictionary: " + str(response))
 
         return response
-        
-    def convert_http_response_to_dict(self, request_string):
+
+    def convert_http_request_to_dict(self, request_string):
         # seperate first line and headers + body
         top, headers = request_string.split("\r\n", 1)
-        top = Top.split(' ') # Top is the top of the reseponse: GET www.google.com HTTP/1.1
+        new_top = top.split(' ') # Top is the top of the reseponse: GET www.google.com HTTP/1.1
         request = {}
-        request['method'] = top[0]
-        request['url'] = top[1]
+        request['method'] = new_top[0]
+        request['url'] = new_top[1]
         request['http'] = top.split('/')[-1]
         request['header'] = dict(email.message_from_file(StringIO(headers)).items()) #parse headers and turn into dictionary
         request['body'] = request_string.split("\r\n")[-1] # extract body
 
         if self.DEBUG:
-            print("[proxy_thread.py -> httpRequestToDictionary] dictionary created: " + request)
+            print("[proxy_thread.py -> httpRequestToDictionary] dictionary created: " + str(request))
 
         return request
 
@@ -68,6 +70,7 @@ class Client(object):
     """
 
     def __init__(self):
+        self.MAX_RECV = 1000000000
         self.my_ip = "10.0.0.5"
         self.http_version = "1.1" # "1.0" to test later
         self.httpHelper = HttpHelper()
@@ -104,7 +107,7 @@ class Client(object):
 
     def _receive(self):
         try:
-            data = self.client_socket.recv(4096)
+            data = self.client_socket.recv(self.MAX_RECV)
             return pickle.loads(data)
             if self.DEBUG:
                 print("[client.py -> _receive] received data from proxy")
@@ -128,7 +131,6 @@ class Client(object):
         response_string = self._receive()
 
         response = self.httpHelper.convert_http_response_to_dict(response_string)
-
         #[issue], handle more response codes here
         # the value returned from this function will be rendered on client screen
         status_code = response['http_code']

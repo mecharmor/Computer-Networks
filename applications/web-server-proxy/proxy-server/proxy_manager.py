@@ -82,7 +82,7 @@ class ProxyManager:
                     for history in self.db.read_from_db('history'):
                         if history['url'] == url:
                             self.db.write_to_db('history', {'url': url, 'accessed': str(datetime.datetime.now()), 'modified': history['modified']})
-                    return cached['html']
+                    return cached #['html']
                 except KeyError as e:
                     print("cached resource: " + url + " was requested but was not in the cache")
 

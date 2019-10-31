@@ -3,7 +3,7 @@ from io import StringIO
 class HttpHelper:
 
     def __init__(self):
-        self.DEBUG = True
+        self.DEBUG = False
 
     def convert_http_response_to_dict(self, response_string):
         # seperate first line and rest

@@ -13,7 +13,7 @@ from httpHelper.httpHelper import HttpHelper
 
 
 class ProxyThread(object):
-    MAX_DATA_RECV = 1000000000 #4096
+    MAX_DATA_RECV = 1000000000
     """
     The proxy thread class represents a threaded proxy instance to handle a specific request from a client socket
     """
@@ -79,7 +79,8 @@ class ProxyThread(object):
         #                 site is outdated then move to step 4. Otherwise, send a response to the 
         #                 client with the requested site and the appropiate status code.
         # 4. If site is not in cache, or last_data_modified is outdated, then create a GET request 
-        if self.proxy_manager.is_cached(url) == False or self.is_outdated_cache(url):
+        print('made it this far')
+        if self.proxy_manager.is_cached(url) or self.is_outdated_cache(url):
             res = self.response_from_server({'mode': 'GET', 'url': url, 'param': []} )
             #res.headers
             if self.DEBUG:
@@ -94,12 +95,13 @@ class ProxyThread(object):
             self.send_response_to_client(res)
 
     def is_outdated_cache(self, url):
-        list_of_cached = self.proxy_manager.get_cached_resource('cache')
-        for item in list_of_cached:
-            if item['url'] == url:
-                headers = self.response_from_server({'mode': 'HEAD', 'url': url, 'param': []} )
-                return headers['last-modified'] == item['last_modified']
-        return True
+        cache = self.proxy_manager.get_cached_resource(url)
+        headers = self.response_from_server({'mode': 'HEAD', 'url': url, 'param': []} )
+        try:
+            return headers['last-modified'] == cache['last_modified']
+        except KeyError as err:
+            print("outdated cache: " + str(err))
+        return True 
 
         
 
@@ -118,11 +120,10 @@ class ProxyThread(object):
             serialized = self.client.recv(self.MAX_DATA_RECV)
             data = pickle.loads(serialized)
             if self.DEBUG:
-                print("[proxy_thread.py -> _receive] received data from Client: " + data)
+                print("[proxy_thread.py -> _receive] received data from Client: " + str(data))
             return data
         except socket.error as err:
             print("proxy_thread receive failed with error %s " % err)
-        return 0
 
     def head_request_to_server(self, url, param = ""):
         session = requests.session()
@@ -130,7 +131,7 @@ class ProxyThread(object):
         session.headers['Keep-Alive'] = '0'
 
         try:
-            response = session.head(url + param)
+            response = session.head(url + str(param))
             if self.DEBUG:
                 print("head_request_to_server: " + response)
             return response.headers # .headers is a dictionary
