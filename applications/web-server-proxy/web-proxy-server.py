@@ -7,7 +7,6 @@ from client.client import Client
 
 app = Flask(__name__)
 
-
 @app.route("/")
 def home():
     return render_template("home.html")
@@ -22,6 +21,10 @@ def proxy_settings():
 
 @app.route("/home.html", methods=["POST"])
 def get_user_input():
+    
+    username = request.form.get("username")
+    password = request.form.get("password")
+
     url = request.form.get("url")
     is_private_mode = 0
     if request.form.get("private"):

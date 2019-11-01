@@ -8,6 +8,7 @@ import email
 import pprint
 import datetime
 from io import StringIO
+import os
 import requests # use sparingly
 from httpHelper.httpHelper import HttpHelper
 
@@ -19,12 +20,11 @@ class ProxyThread(object):
     """
     DEBUG = True
 
-    def __init__(self, conn, client_addr, server_ip):
+    def __init__(self, conn, client_addr):
         self.proxy_manager = ProxyManager()
         self.client = conn
         self.client_id = client_addr[1] # get id
         self.client_ip = client_addr[0] #get ip address
-        self.server_ip = server_ip
 
         if self.DEBUG:
             print("[proxy_thread.py -> __init__] new instance of ProxyThread() class ")
@@ -50,7 +50,7 @@ class ProxyThread(object):
         return self.client_id
 
     def _mask_ip_adress(self):
-        self.client_ip = self.server_ip
+        # the proxy server is already masking the user IP
         if self.DEBUG:
             print("[proxy_thread.py -> _mask_ip_address] set self.client_ip to: " + self.client_ip)
 
@@ -79,8 +79,7 @@ class ProxyThread(object):
         #                 site is outdated then move to step 4. Otherwise, send a response to the 
         #                 client with the requested site and the appropiate status code.
         # 4. If site is not in cache, or last_data_modified is outdated, then create a GET request 
-        print('made it this far')
-        if self.proxy_manager.is_cached(url) or self.is_outdated_cache(url):
+        if not self.proxy_manager.is_cached(url) or self.is_outdated_cache(url):
             res = self.response_from_server({'mode': 'GET', 'url': url, 'param': []} )
             #res.headers
             if self.DEBUG:
@@ -116,14 +115,17 @@ class ProxyThread(object):
         return
 
     def _receive(self):
-        try:
-            serialized = self.client.recv(self.MAX_DATA_RECV)
-            data = pickle.loads(serialized)
-            if self.DEBUG:
-                print("[proxy_thread.py -> _receive] received data from Client: " + str(data))
-            return data
-        except socket.error as err:
-            print("proxy_thread receive failed with error %s " % err)
+        while True:
+            try:
+                serialized = self.client.recv(self.MAX_DATA_RECV)
+                data = pickle.loads(serialized)
+                if self.DEBUG:
+                    print("[proxy_thread.py -> _receive] received data from Client: " + str(data))
+                return data
+            except socket.error as err:
+                print("proxy_thread receive failed with error %s " % err)
+            except EOFError:
+                pass
 
     def head_request_to_server(self, url, param = ""):
         session = requests.session()
@@ -182,6 +184,7 @@ class ProxyThread(object):
         except KeyError as e:
             print("send_response_to_client, last-modified header does not exist: " + str(e))
             response_string = HttpHelper().build_http_response("1.1", str(data.status_code), data.headers['date'], str(data.content))
+        print("189 - send_response_to_client")
         self._send(response_string)
 
    

@@ -28,12 +28,12 @@ class ProxyServer(object):
             while True:
                 client_sock, addr = self.server.accept()  # Note: addr[0] is client IP, addr[1] is socket id
                 self.clients.append((client_sock, addr))  # record connected client
-                threading.Thread(target=self.proxy_thread, args=(client_sock, addr, self.HOST)).start()
+                threading.Thread(target=self.proxy_thread, args=(client_sock, addr)).start()
         except socket.error as err:
             print("accept new client failed with error %s" % err)
 
-    def proxy_thread(self, conn, client_addr, host):
-        proxy_thread = ProxyThread(conn, client_addr, host)
+    def proxy_thread(self, conn, client_addr):
+        proxy_thread = ProxyThread(conn, client_addr)
         proxy_thread.init_thread()
 
 

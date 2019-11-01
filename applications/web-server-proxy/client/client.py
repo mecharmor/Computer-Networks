@@ -113,6 +113,8 @@ class Client(object):
                 print("[client.py -> _receive] received data from proxy")
         except socket.error as err:
             print("socket recv failed with error %s" % err)
+        except pickle.UnpicklingError:
+            print("website is too large for data. (delete database and try again)")
 
         return {}
 
