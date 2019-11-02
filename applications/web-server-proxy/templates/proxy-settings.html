@@ -16,49 +16,115 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6 col-md-offset-3">
-                    <h2>Proxy Settings</h2> This page can only be visited by proxy admins. </p>
-                    <form role="form" method="post" id="reused_form" >
-                        <div>
-                         <button type="submit" class="btn btn-lg btn-success pull-right" id="btnContactUs">Add new admin! &rarr;</button>
-                         </div>
+                    <h2>Proxy Settings</h2> This page can only be visited by proxy admins.</p>
+                    <form role="form" action="/add" method="post">
+                    <!-- Admin -->
+                   <div class="form-row" style="margin-top:1em;">
+                        <h3 style="margin-bottom:1em;">Admin(s)</h3>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" placeholder="Username"  name="admin_username">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" placeholder="Password" name="admin_password">
+                        </div>
+                        <div class="col-md-4">
+                        <button type="submit" class="btn btn-success">Add new admin! &rarr;</button>
+                        </div>
+                
                          <div class="form-group">
-                            <label for="name"> List of admins:</label>
-                            <textarea class="form-control" type="textarea" name="admins" id="message" placeholder="Jose Ortiz" maxlength="6000" rows="7"></textarea>
+                            <label for="name" style="margin-top:2em;"> List of admins:</label>
+                            <div class="well">
+                            {% for dictionary in admins %}
+                                {{dictionary}}</br>
+                            {% endfor %}
+                            </div>
                          </div>
-                         <div>
-                         <button type="submit" class="btn btn-lg btn-success pull-right" id="btnContactUs">Add new blocked site! &rarr;</button>
-                         </div>
-                        <div class="form-group">
-                            <label for="name"> List of blocked sites:</label>
-                            <textarea class="form-control" type="textarea" name="admins" id="message" placeholder="www.facebook.com" maxlength="6000" rows="7"></textarea>
-                         </div>
-                        <div>
-                         <button type="submit" class="btn btn-lg btn-success pull-right" id="btnContactUs">Clear cache! &rarr;</button>
-                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="name"> List of domain resources in cache</label>
-                            <textarea class="form-control" type="textarea" name="admins" id="message" placeholder="linkedin" maxlength="6000" rows="7"></textarea>
-                         </div>
-                        <div>
-                         <button type="submit" class="btn btn-lg btn-success pull-right" id="btnContactUs">Add new User! &rarr;</button>
-                         </div>
-
+                    <!-- List of blocked sites -->
+                   <div class="form-row" style="margin-top:1em;">
+                        <h3 style="margin-bottom:1em;">Blocked Site(s)</h3>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" placeholder="http://test.com"  name="blocked_site">
+                        </div>
+                        <div class="col-md-4">
+                        <button type="submit" class="btn btn-success">Add new blocked site! &rarr;</button>
+                        </div>
                          <div class="form-group">
-                            <label for="name">Users allowed to browse in private mode</label>
-                            <textarea class="form-control" type="textarea" name="admins" id="message" placeholder="jortizco@sfsu.edu" maxlength="6000" rows="7"></textarea>
+                            <label for="name" style="margin-top:2em;"> List of blocked sites:</label>
+                            <div class="well">
+                            {% for l in blocked_sites %}
+                                {{l}}</br>
+                            {% endfor %}
+                            </div>
                          </div>
-                        <div>
-                         <button type="submit" class="btn btn-lg btn-success pull-right" id="btnContactUs">Add new site! &rarr;</button>
-                         </div>
+                    </div>
 
+                    <!-- List of domain resources -->
+                    <div class="form-row" style="margin-top:1em;">
+                        <h3 style="margin-bottom:1em;">Cached Resources</h3>
+                        <div class="col-md-8">
+                            <input type="checkbox" class="form-check-input" name="clear_cache">
+                            <label class="form-check-label">(check to clear cache)</label>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-success">Submit &rarr;</button>
+                        </div>
                          <div class="form-group">
-                            <label for="name">Sites for managers only</label>
-                            <textarea class="form-control" type="textarea" name="admins" id="message" placeholder="http://companyY.org/client_data/" maxlength="6000" rows="7"></textarea>
+                            <label for="name" style="margin-top:2em;"> List of domain resources in cache</label>
+                            <div class="well">
+                            {% for l in cached_sites %}
+                                {{l}}</br>
+                            {% endfor %}
+                            </div>
                          </div>
+                    </div>
+                    <!-- end -->
 
+                    <!-- List of domain resources -->
+                    <div class="form-row" style="margin-top:1em;">
+                        <h3 style="margin-bottom:1em;">Users</h3>
+                            <div class="col-md-4">
+                            <input type="text" class="form-control" placeholder="Username"  name="user_username">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="Password" name="user_password">
+                            </div>
+                            <div class="col-md-4">
+                            <button type="submit" class="btn btn-success">Add new User! &rarr;</button>
+                            </div>
+                         <div class="form-group">
+                            <label for="name" style="margin-top:2em;"> Users allowed to browse in private mode</label>
+                            <div class="well">
+                            {% for l in private_mode_users %}
+                                {{l}}</br>
+                            {% endfor %}
+                            </div>
+                         </div>
+                    </div>
+                    <!-- end -->
 
-                        <button type="submit" class="btn btn-lg btn-success pull-right" id="btnContactUs">Save Data! &rarr;</button>
+                    <!-- sites for managers 
+                    <div class="form-row" style="margin-top:1em;">
+                        <h3 style="margin-bottom:1em;">Manager Sites</h3>
+                            <div class="col-md-8">
+                            <input type="text" class="form-control" placeholder="www.google.com"  name="new_site">
+                            </div>
+                            <div class="col-md-4">
+                            <button type="submit" class="btn btn-success">Add new site! &rarr;</button>
+                            </div>
+                         <div class="form-group">
+                            <label for="name" style="margin-top:2em;"> Sites for managers only</label>
+                            <div class="well">
+                            {% for l in manager_sites %}
+                                {{l}}</br>
+                            {% endfor %}
+                            </div>
+                         </div>
+                    </div>
+                     end --> 
+
+                        <button type="submit" class="btn btn-lg btn-info">Submit ALL! &rarr;</button>
                     </form>
                     <div id="success_message" style="width:100%; height:100%; display:none; "> <h3>Sent your message successfully!</h3> </div>
                     <div id="error_message" style="width:100%; height:100%; display:none; "> <h3>Error</h3> Sorry there was an error sending your form. </div>

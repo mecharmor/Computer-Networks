@@ -8,6 +8,11 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-
         awesome/4.7.0/css/font-awesome.min.css">
         <link rel="stylesheet" href="/static/home.css">
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     </head>
     <body>
         <h1><center>Organization Y Home Page</center></h1>
@@ -16,13 +21,34 @@
             <input type="text" placeholder="http://yoursite.com" name="url">
             <button value="submit" type="submit"><i class="fa fa-search">Go</i>
             </button>
-            <br />
-            <br />
-            <h6> Enter your user credentials to get access to blocked sites</h6>
-            <h2> default admin login given to gain access to blocked resources</h2>
-            <input type="text" placeholder="username" name="username" value = "admin@admin.com">
-            <input type="text" placeholder="password" name="password" value = "admin">
             <input type="checkbox" name="private" value="true"> Private mode <br>
+            <div style="margin-top:2em;">
+                <h6><kbd>(Required)</kbd> Enter your user credentials to get access to blocked sites</h6>
+                <p> default admin login given to gain access to blocked resources</p>
+                <input type="text" placeholder="username" name="username" value = "admin">
+                <input type="text" placeholder="password" name="password" value = "admin">
+            </div>
         </form>
+        <div class="jumbotron" style = "width:50%; margin-left: 25%; margin-top: 2em;"> 
+            <h4>The following websites have been tested with the proxy</h4>
+                <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">URL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row"> https://www.fogcam.org/</th>
+                </tr>
+                <tr>
+                    <th scope="row">http://www.google.com (this website is blocked)</th>
+                </tr>
+                <tr>
+                    <th scope="row">tbd...</th>
+                </tr>
+            </tbody>
+        </table>
+        </div>
     </body>
 </html>

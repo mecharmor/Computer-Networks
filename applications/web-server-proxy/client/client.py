@@ -6,7 +6,7 @@ from io import StringIO
 class HttpHelper:
 
     def __init__(self):
-        self.DEBUG = True
+        self.DEBUG = False
 
     def convert_http_response_to_dict(self, response_string):
         # seperate first line and rest
@@ -125,7 +125,7 @@ class Client(object):
         request = self.httpHelper.build_http_request(data['url'], self.my_ip, data['is_private_mode'], "GET", self.http_version)
 
         if self.DEBUG:
-            print("[client.py -> request_to_proxy] sent request to proxy with HTTP format:" + str(request))
+            print("[client.py -> request_to_proxy] sent request to proxy with HTTP format:\n" + str(request))
         
         self._send(request)
 
