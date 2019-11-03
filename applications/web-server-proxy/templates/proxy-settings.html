@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Reusable Contact Form Using Bootstrap And PHP - reusable form</title>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" >
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" >
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="proxyjs.js"></script>
+    </head>
+    <body >
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3">
+                    <h2>Proxy Settings</h2> This page can only be visited by proxy admins.</p>
+                    <form role="form" action="/add" method="post">
+                    <!-- Admin -->
+                   <div class="form-row" style="margin-top:1em;">
+                        <h3 style="margin-bottom:1em;">Admin(s)</h3>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" placeholder="Username"  name="admin_username">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" placeholder="Password" name="admin_password">
+                        </div>
+                        <div class="col-md-4">
+                        <button type="submit" class="btn btn-success">Add new admin! &rarr;</button>
+                        </div>
+                
+                         <div class="form-group">
+                            <label for="name" style="margin-top:2em;"> List of admins:</label>
+                            <div class="well">
+                            {% for dictionary in admins %}
+                                {{dictionary}}</br>
+                            {% endfor %}
+                            </div>
+                         </div>
+                    </div>
+
+                    <!-- List of blocked sites -->
+                   <div class="form-row" style="margin-top:1em;">
+                        <h3 style="margin-bottom:1em;">Blocked Site(s)</h3>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" placeholder="http://test.com"  name="blocked_site">
+                        </div>
+                        <div class="col-md-4">
+                        <button type="submit" class="btn btn-success">Add new blocked site! &rarr;</button>
+                        </div>
+                         <div class="form-group">
+                            <label for="name" style="margin-top:2em;"> List of blocked sites:</label>
+                            <div class="well">
+                            {% for l in blocked_sites %}
+                                {{l}}</br>
+                            {% endfor %}
+                            </div>
+                         </div>
+                    </div>
+
+                    <!-- List of domain resources -->
+                    <div class="form-row" style="margin-top:1em;">
+                        <h3 style="margin-bottom:1em;">Cached Resources</h3>
+                        <div class="col-md-8">
+                            <input type="checkbox" class="form-check-input" name="clear_cache">
+                            <label class="form-check-label">(check to clear cache)</label>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-success">Submit &rarr;</button>
+                        </div>
+                         <div class="form-group">
+                            <label for="name" style="margin-top:2em;"> List of domain resources in cache</label>
+                            <div class="well">
+                            {% for l in cached_sites %}
+                                {{l}}</br>
+                            {% endfor %}
+                            </div>
+                         </div>
+                    </div>
+                    <!-- end -->
+
+                    <!-- List of domain resources -->
+                    <div class="form-row" style="margin-top:1em;">
+                        <h3 style="margin-bottom:1em;">Users</h3>
+                            <div class="col-md-4">
+                            <input type="text" class="form-control" placeholder="Username"  name="user_username">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="Password" name="user_password">
+                            </div>
+                            <div class="col-md-4">
+                            <button type="submit" class="btn btn-success">Add new User! &rarr;</button>
+                            </div>
+                         <div class="form-group">
+                            <label for="name" style="margin-top:2em;"> Users allowed to browse in private mode</label>
+                            <div class="well">
+                            {% for l in private_mode_users %}
+                                {{l}}</br>
+                            {% endfor %}
+                            </div>
+                         </div>
+                    </div>
+                    <!-- end -->
+
+                    <div class="form-row" style="margin-top:1em;">
+                        <h3 style="margin-bottom:1em;">Manager Sites</h3>
+                            <div class="col-md-8">
+                            <input type="text" class="form-control" placeholder="www.google.com"  name="new_site">
+                            </div>
+                            <div class="col-md-4">
+                            <button type="submit" class="btn btn-success">Add new site! &rarr;</button>
+                            </div>
+                         <div class="form-group">
+                            <label for="name" style="margin-top:2em;"> Sites for managers only</label>
+                            <div class="well">
+                            {% for l in manager_sites %}
+                                {{l}}</br>
+                            {% endfor %}
+                            </div>
+                         </div>
+                    </div>
+
+                        <button type="submit" class="btn btn-lg btn-info">Submit ALL! &rarr;</button>
+                    </form>
+                    <div id="success_message" style="width:100%; height:100%; display:none; "> <h3>Sent your message successfully!</h3> </div>
+                    <div id="error_message" style="width:100%; height:100%; display:none; "> <h3>Error</h3> Sorry there was an error sending your form. </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
