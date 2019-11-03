@@ -30,7 +30,7 @@ class ProxyServer(object):
     def wait_for_termination(self):
         # use this for server shutdown
         while True:
-            user_input = input("enter 'quit' to terminate server safely -->")
+            user_input = input("enter 'quit' to terminate server safely -->\n")
             if user_input == 'quit':
                 for client_sock, addr in self.clients:
                     print("client closed forcefully: " + str(addr[1]))

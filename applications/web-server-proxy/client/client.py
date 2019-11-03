@@ -39,11 +39,13 @@ class HttpHelper:
 
         return request
 
-    def build_http_request(self, url, host, is_private_mode, method = "GET", http = "1.1"):
+    def build_http_request(self, url, host, is_private_mode, method = "GET", http = "1.1", username = "", password = ""):
         httpRequest = str(method) + """ """ + str(url) + """ HTTP/""" + http + """\r\n"""
         httpRequest += """Host: """ + str(host) + """\r\n"""
         httpRequest += """Connection: close\r\n"""
         httpRequest += """Keep-Alive: 0\r\n"""
+        httpRequest += """username:""" + username + """\r\n"""
+        httpRequest += """password:""" + password + """\r\n"""
         httpRequest += """is_private_mode: """ + str(is_private_mode) + """\r\n"""
         httpRequest += """\r\n"""
 
@@ -122,7 +124,14 @@ class Client(object):
         # given {'url': url, 'is_private_mode': is_private_mode}
         
         # build request
-        request = self.httpHelper.build_http_request(data['url'], self.my_ip, data['is_private_mode'], "GET", self.http_version)
+        request = self.httpHelper.build_http_request(
+                                                     data['url'], 
+                                                     self.my_ip, 
+                                                     data['is_private_mode'], 
+                                                     "GET", 
+                                                     self.http_version,
+                                                     data['username'],
+                                                     data['password'])
 
         if self.DEBUG:
             print("[client.py -> request_to_proxy] sent request to proxy with HTTP format:\n" + str(request))

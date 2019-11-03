@@ -11,6 +11,8 @@ from proxy.proxy_manager import ProxyManager
 
 app = Flask(__name__)
 
+PATH_TO_DATABASE = './proxy/database.json'
+
 @app.route("/")
 def home():
     return render_template("home.html")
@@ -25,7 +27,7 @@ def add():
     user_password = request.form.get("user_password")
     new_site = request.form.get("new_site")
 
-    pm = ProxyManager('./proxy/database.json')
+    pm = ProxyManager(PATH_TO_DATABASE)
 
     if admin_username != "" and admin_password != "":
         pm.add_admin(admin_username, admin_password)
@@ -35,19 +37,21 @@ def add():
 
     if clear_cache:
         pm.clear_cache()
+        pm.clear_history() # clear history is invoked because i'm assuming when user clear's cache we will remove all history too
 
     if user_username != "" and user_password != "":
         pm.add_manager(user_username, user_password)
 
-    if new_site != "": #[issue], not sure the purpose of this so leaving blank for later
-        print("new site added!!")
+    if new_site != "":
+        print("new manager site added!")
+        pm.add_new_manager_site(str(new_site))
 
     return redirect("/proxy-settings")
 
 
 @app.route("/proxy-settings")
 def proxy_settings():
-    pm = ProxyManager('./proxy/database.json') 
+    pm = ProxyManager(PATH_TO_DATABASE) 
     
     return render_template("proxy-settings.html",
                             cached_sites = pm.list_of_cached_sites(),
@@ -74,14 +78,6 @@ def get_user_input():
     client.request_to_proxy(data)
 
     return client.response_from_proxy()
-
-
-# @app.route('/proxy-settings', methods=['POST'])
-# def get_user_input():
-#     print("ok")
-
-
-#     return "hi"
 
 
 if __name__ == "__main__":
