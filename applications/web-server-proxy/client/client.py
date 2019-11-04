@@ -40,12 +40,13 @@ class HttpHelper:
         return request
 
     def build_http_request(self, url, host, is_private_mode, method = "GET", http = "1.1", username = "", password = ""):
-        httpRequest = str(method) + """ """ + str(url) + """ HTTP/""" + http + """\r\n"""
+        httpRequest = str(method) + """ """ + str(url) + """ HTTP/""" + str(http) + """\r\n"""
         httpRequest += """Host: """ + str(host) + """\r\n"""
-        httpRequest += """Connection: close\r\n"""
-        httpRequest += """Keep-Alive: 0\r\n"""
-        httpRequest += """username:""" + username + """\r\n"""
-        httpRequest += """password:""" + password + """\r\n"""
+        if http == "1.1":
+            httpRequest += """Connection: close\r\n"""
+            httpRequest += """Keep-Alive: 0\r\n"""
+        httpRequest += """username:""" + str(username) + """\r\n"""
+        httpRequest += """password:""" + str(password) + """\r\n"""
         httpRequest += """is_private_mode: """ + str(is_private_mode) + """\r\n"""
         httpRequest += """\r\n"""
 
@@ -142,13 +143,11 @@ class Client(object):
         response_string = self._receive()
 
         response = self.httpHelper.convert_http_response_to_dict(response_string)
-        #[issue], handle more response codes here
-        # the value returned from this function will be rendered on client screen
         status_code = response['http_code']
         if status_code == 200:
-            print("SUCCESS response from proxy")
+            print("SUCCESS response from proxy") #show page
         elif status_code == 500:
-            print("internal server error happened here")
+            print("internal server error happened here") #browser will throw 500 error automatically
 
         return response['body']
 

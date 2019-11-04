@@ -16,7 +16,7 @@ class HttpHelper:
         response['body'] = response_string.split("\r\n")[-1] # extract body
 
         if self.DEBUG:
-            print("[httpHelper.py -> ] converted to dictionary: " + response)
+            print("[httpHelper.py -> ] converted to dictionary: " + str(response))
 
         return response
         
@@ -37,16 +37,17 @@ class HttpHelper:
         return request
 
     def build_http_request(self, url, host, is_private_mode, method = "GET", http = "1.1"):
-        httpRequest = str(method) + """ """ + str(url) + """ HTTP/""" + http + """\r\n"""
+        httpRequest = str(method) + """ """ + str(url) + """ HTTP/""" + str(http) + """\r\n"""
         httpRequest += """Host: """ + str(host) + """\r\n"""
-        httpRequest += """Connection: close\r\n"""
-        httpRequest += """Keep-Alive: 0\r\n"""
+        if str(http) == "1.1":
+            httpRequest += """Connection: close\r\n"""
+            httpRequest += """Keep-Alive: 0\r\n"""
         httpRequest += """is_private_mode: """ + str(is_private_mode) + """\r\n"""
         httpRequest += """\r\n"""
 
         return httpRequest
 
-    def build_http_response(self,http_version, status_code, last_modified, html):
+    def build_http_response(self, http_version, status_code, last_modified, html):
         response = """HTTP/""" + str(http_version) + " " + str(status_code) + """\r\n"""
         # response += """Date: """ + str(date) + """\r\n"""
         response += """Last-Modified: """ + str(last_modified) + """\r\n"""
@@ -54,7 +55,7 @@ class HttpHelper:
             response += """Connection: close\r\n"""
             response += """Keep-Alive: 0\r\n"""
         response += """\r\n"""
-        response += html #attach html
+        response += str(html) #attach html
 
         return response
 

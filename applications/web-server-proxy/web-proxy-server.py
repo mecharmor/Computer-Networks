@@ -3,11 +3,6 @@ from flask import Flask, render_template, request, redirect
 import requests
 from client.client import Client
 from proxy.proxy_manager import ProxyManager
-#from proxy_server.proxy_manager import ProxyManager
-
-# import sys
-# sys.path.append('proxy-server')
-# from proxy_manager import ProxyManager
 
 app = Flask(__name__)
 

@@ -69,7 +69,6 @@ class ProxyThread(object):
         if is_private_mode == 1:
             self._mask_ip_adress()
 
-
         if self.proxy_manager.is_site_blocked(url):
             if self.proxy_manager.is_admin(username, password):
                 self.check_cache_and_send_to_client(url)
