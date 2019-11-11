@@ -1,3 +1,9 @@
+## Instructor Comments
+
+Grade 100/100 plus the extracredit for the assignement. However, I still need to confirm where you are saving the data of your cached sites. I can see that you show them in the settings page but I was not able to find them in the folder structure of your project. Please, let me know as soon as posible. 
+
+Thank you for all the work put here. Really good project!. 
+
 # Web Proxy Server
 
 - Cory Lewis 917359162
