@@ -14,7 +14,7 @@ class Server(object):
     def __init__(self):
         self.logging = Logging()
         self.host = '127.0.0.1'
-        self.port = '12000'
+        self.port = 12000
         self.max_connections = 20
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -87,4 +87,5 @@ class Server(object):
         return None
 
 
-
+# server = Server()
+# server.listen()
