@@ -41,7 +41,6 @@ class Server(object):
                 break
 
     def accept(self):
-        self.logging.log("server.py -> accept", "client accepted")
         try:
             while True:
                 conn, addr = self.server.accept() # Note: addr[0] is client IP, addr[1] is socket id
@@ -85,7 +84,3 @@ class Server(object):
         # [issue], implement here!! 
         # create a Client here
         return None
-
-
-# server = Server()
-# server.listen()

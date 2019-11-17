@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """ The peer """
 from server import Server
+from logging import Logging
 from client import Client
+import json
 
 class Peer(Client, Server):
 
@@ -21,20 +23,11 @@ class Peer(Client, Server):
         self.interested = False
         self.max_download_rate = max_download_rate
         self.max_upload_rate = max_upload_rate
+        self.logging = Logging()
 
     def connect_to_tracker(self, ip_address, port):
-        """
-        TODO: implement this method
-        Connect to the tracker. Note that a tracker in this assignment
-        is similar to the server in assignment #1. So, you already know
-        how to implement this connection
-        Note that ip address and port comes from the announce in
-        the torrent file. So you need to parse it firt at some point
-        :param ip_address:
-        :param port:
-        :return: the swarm object with all the info from the peers connected to the swarm
-        """
-        return None
+        self.connect(ip_address, port)
+        return self.receive(self.max_download_rate) # return swarm
 
     def connect_to_swarm(self, swarm):
         """
@@ -58,7 +51,7 @@ class Peer(Client, Server):
         This needs to be re-evaluated every 30 seconds approximatly
         :return: the new upload_rate
         """
-        return None
+        return 5 # sample data for now
 
     def download_rate(self):
         """
@@ -67,21 +60,7 @@ class Peer(Client, Server):
         This needs to be re-evaluated every 30 seconds approximatly
         :return: the new download rate
         """
-        return None
-
-
-    def get_metainfo(self, torrent_path):
-        """
-        TODO: implement this method
-        (1) Create an empty resource object
-        (2) call the method parse_metainfo() from that object
-            which must return all the fields and values from
-            the metainfo file, including the hashes from the
-            file pieces.
-        :param torrent_path:
-        :return: the metainfo
-        """
-        return None
+        return 5 # sample data for now
 
     def change_role(self, new_role):
         """
@@ -151,46 +130,55 @@ class Peer(Client, Server):
         """
         return False
 
+    # ALL BELOW ARE DONE
+    def get_metainfo(self, torrent_path):
+        try:
+            torrent = open(torrent_path, 'r')
+            torrent_json = json.loads(torrent.read())
+            return torrent_json
+        except FileNotFoundError as e:
+            self.logging.log("peer.py -> get_metainfo", "could not find torrent file", 3, str(e))
+            print("Could not find torrent file")
+        except Exception as e:
+            print("could not parse json: " + str(e))
+        
+        print("no torrent found. Terminating immediately......")
+        exit()
+
     def is_chocked(self):
-        """
-        Already implemented
-        :return:
-        """
         return self.chocked
 
     def is_interested(self):
-        """
-        Already implemented
-        :return:
-        """
         return self.interested
 
     def chocked(self):
-        """
-        Already implemented
-        :return: VOID
-        """
         self.chocked = True
 
     def unchocked(self):
-        """
-        Already implemented
-        :return: VOID
-        """
         self.chocked = False
 
     def interested(self):
-        """
-        Already implemented
-        :return: VOID
-        """
         self.interested = True
 
     def not_interested(self):
-        """
-
-        Already implemented
-        :return: VOID
-        """
         self.interested = False
 
+
+max_upl = 10000
+max_down = 10000
+torrent_name = 'config.torrent'
+peer_ip = '127.0.0.1'
+peer_port = 12001
+
+# Start
+peer = Peer(max_upl, max_down)
+torrent = peer.get_metainfo('./metainfo/' + torrent_name)
+tracker = torrent['announce'].split(':') # tracker info, 0 = ip, 1 = port
+swarm = peer.connect_to_tracker(tracker[0], int(tracker[1]))
+peer.connect_to_swarm(swarm)
+
+print("\n***** P2P client App *****")
+print("Peer Info: id: xxxxx, IP: " + peer_ip + ":" + str(peer_port))
+print("Tracker/s info: IP: " + torrent['announce'])
+print("Max download rate: " + str(max_down) + " b/s")
+print("Max upload rate: " + str(max_upl) + " b/s")

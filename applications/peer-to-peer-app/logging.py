@@ -1,4 +1,5 @@
 from datetime import datetime
+# This file is to add verbose logging to help diagnose bugs
 class Logging(object):
     def __init__(self):
         self.verbose_logging = True

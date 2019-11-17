@@ -1,0 +1,21 @@
+INFO     | server.py -> listen | Listening On 127.0.0.1:12000 |2019-11-16 09:58:25
+INFO     | server.py -> listen | Listening On 127.0.0.1:12000 |2019-11-16 09:59:03
+INFO     | server.py -> accept | client accepted |2019-11-16 09:59:03
+INFO     | server.py -> wait_for_termination | server terminated by user |2019-11-16 09:59:11
+CRITICAL | server.py -> accept | accept new client failed[Errno 53] Software caused connection abort |2019-11-16 09:59:11
+CRITICAL | client.py -> connect | failed to connect to host on: 127.0.0.1:12000[Errno 61] Connection refused |2019-11-17 09:46:40
+CRITICAL | client.py -> connect | failed to connect to host on: 127.0.0.1:12000[Errno 61] Connection refused |2019-11-17 11:05:26
+CRITICAL | client.py ->  | receive[Errno 57] Socket is not connected |2019-11-17 11:05:26
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-11-17 11:05:26
+CRITICAL | client.py -> connect | failed to connect to host on: 127.0.0.1:12000[Errno 61] Connection refused |2019-11-17 11:05:26
+CRITICAL | client.py ->  | receive[Errno 57] Socket is not connected |2019-11-17 11:05:26
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-11-17 11:05:26
+CRITICAL | client.py -> connect | failed to connect to host on: 127.0.0.1:12000[Errno 61] Connection refused |2019-11-17 12:18:46
+CRITICAL | client.py ->  | receive[Errno 57] Socket is not connected |2019-11-17 12:18:46
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-11-17 12:18:46
+CRITICAL | client.py -> connect | failed to connect to host on: 127.0.0.1:12000[Errno 61] Connection refused |2019-11-17 12:19:33
+CRITICAL | client.py ->  | receive[Errno 57] Socket is not connected |2019-11-17 12:19:33
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-11-17 12:19:33
+CRITICAL | client.py -> connect | failed to connect to host on: 127.0.0.1:12000[Errno 61] Connection refused |2019-11-17 12:21:19
+CRITICAL | client.py ->  | receive[Errno 57] Socket is not connected |2019-11-17 12:21:19
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-11-17 12:21:19

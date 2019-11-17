@@ -25,7 +25,6 @@ class Resource(object):
         self.trackers = []
         self.completed = []  # the pieces that are already completed
 
-
     def add_tracker(self, ip_address, port):
         """
         TODO: Implement this method
@@ -38,25 +37,12 @@ class Resource(object):
         return None
 
     def get_trackers(self):
-        """
-        Already implemented
-        :return: the list of trackers for this resource
-        """
         return self.trackers
 
     def len(self):
-        """
-        Already implementeted
-        :return: the len of the resource
-        """
         return self.len
 
     def name(self):
-        """
-        TODO: implement this method
-        Extract the name of the file path from the patch
-        :return: the name of the file
-        """
         return None
 
     def _create_pieces(self):
@@ -137,29 +123,6 @@ class Piece(object):
         """
         self.blocks = []
 
-    def _hash_sha1(self, data = None):
-        """
-        Already implemented for you.
-        Takes a string data, and create a sha1 hash
-        you need to put this hash in the torrent file
-        so, when a piece is downloaded, then hash of
-        that piece needs to be compared in irder to
-        make sure that the data is not corrupted.
-        :return: the hexadecimal representation of
-        the hash
-        """
-        if not data:
-            data = self.data
-        hash_object = hashlib.sha1(data.encode())
-        return hash_object.hexdigest()
-
-    def get_hash(self):
-        """
-        Already implemented
-        :return: the hash of this piece
-        """
-        return self.hash
-
     def is_equal_to(self, piece):
         """
         TODO: implement this method
@@ -177,25 +140,23 @@ class Piece(object):
         """
         return False
 
+    # Below Are Implemented
+    def _hash_sha1(self, data = None):
+        if not data:
+            data = self.data
+        hash_object = hashlib.sha1(data.encode())
+        return hash_object.hexdigest()
+
+    def get_hash(self):
+        return self.hash
+
     def get_blocks(self):
-        """
-        Already implemented
-        :return:
-        """
         return self.blocks
 
     def is_completed(self):
-        """
-        Already implemented
-        :return:
-        """
         return self.completed
 
     def set_to_complete(self):
-        """
-        Already implemented
-        :return:
-        """
         self.completed = True
 
 
