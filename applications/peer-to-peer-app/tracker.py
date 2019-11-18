@@ -12,20 +12,11 @@ in the swarm)
 
 """
 from server import Server
+import pickle
 
 class Tracker(Server):
 
-    PORT = 13000
-    IP_ADDRESS = "127.0.0.1"
-
     def __init__(self, ip_address = '127.0.0.1', port = 13000):
-        """
-        TODO: finish constructor implementation (if needed)
-        If parameters ip_address and port are not set at the object creation time,
-        you need to use the default IP address and the default port set in the class constants.
-        :param ip_address:
-        :param port:
-        """
         Server.__init__(self, ip_address, port)
         self.port = port
         self.ip = ip_address
@@ -46,22 +37,14 @@ class Tracker(Server):
         :return: VOID
         """
         pass
-
-    def send_peers(self, peer_socket, resource_id):
-        """
-        TODO: implement this method
-        Iterate the swarms list, and find the one which match with
-        the resource id provided as a parameter. Then, serialize the
-        swarm and send the swarm object to the peer requesting it.
-        :param peer_socket: the peer socket that is requesting the info
-        :param resource_id: the resource id to identify the swarm
-               sharing this resource
-        :return: VOID
-        """
-        pass
-
-
+        
     # implemented
+    def send_peers(self, peer_socket, resource_id):
+        for s in self.swarms:
+            if s.resource_id() == resource_id: # [issue], assuming peer_socket is the physical socket
+                serialized = pickle.loads(s)
+                peer_socket.send(serialized)
+
     def add_swarm(self, swarm):
         self.swarms.append(swarm)
 

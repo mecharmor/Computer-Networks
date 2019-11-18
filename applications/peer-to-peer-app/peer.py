@@ -42,6 +42,7 @@ class Peer(Client, Server):
         return self.receive(self.max_download_rate) # return swarm
 
     def connect_to_swarm(self, swarm):
+        list_of_peers = swarm.peers()
         """
         TODO: implement this method
         This method will create a socket (TCP) connection
@@ -54,7 +55,6 @@ class Peer(Client, Server):
         :param swarm: Swarm object returned from the tracker
         :return: VOID
         """
-        pass
 
     def upload_rate(self):
         """
@@ -73,19 +73,6 @@ class Peer(Client, Server):
         :return: the new download rate
         """
         return 5 # sample data for now
-
-    def change_role(self, new_role):
-        """
-        TODO: implement this method
-        When a peer is interested in downloading a pieces of
-        a resource, and the seeder or leecher sharing the resource
-        is not chocked, then the peer becomes a leecher. When the
-        leecher already have all the completed files from the file
-        it becomes a seeder.
-        :param new_role: use class constants: PEER, SEEDER or LEECHER
-        :return: VOID
-        """
-        pass
 
     def send_message(self, block, start_index = -1, end_index = -1):
         """
@@ -145,6 +132,18 @@ class Peer(Client, Server):
         return False
 
     # ALL BELOW ARE DONE
+    def change_role(self, new_role):
+        self.status = new_role
+    """
+    TODO: implement this method
+    When a peer is interested in downloading a pieces of
+    a resource, and the seeder or leecher sharing the resource
+    is not chocked, then the peer becomes a leecher. When the
+    leecher already have all the completed files from the file
+    it becomes a seeder.
+    :param new_role: use class constants: PEER, SEEDER or LEECHER
+    :return: VOID
+    """
     def get_metainfo(self, torrent_path):
         try:
             torrent = open(torrent_path, 'r')
