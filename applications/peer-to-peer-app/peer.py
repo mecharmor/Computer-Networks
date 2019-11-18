@@ -16,7 +16,7 @@ class Peer(Client, Server):
         """
         TODO: implement the class constructor
         """
-        Server.__init__(self) # inherites methods from Server class
+        Server.__init__(self, '127.0.0.1', 12000) # inherites methods from Server class
         Client.__init__(self) # inherites methods from Client class
         self.status = self.PEER
         self.chocked = False
@@ -24,6 +24,18 @@ class Peer(Client, Server):
         self.max_download_rate = max_download_rate
         self.max_upload_rate = max_upload_rate
         self.logging = Logging()
+
+    def start_download(self, torrent_name):
+        torrent = self.get_metainfo('./metainfo/' + torrent_name)
+        tracker = torrent['announce'].split(':') # tracker info, 0 = ip, 1 = port
+        swarm = self.connect_to_tracker(tracker[0], int(tracker[1]))
+        peer.connect_to_swarm(swarm)
+
+        print("\n***** P2P client App *****")
+        print("Peer Info: id: xxxxx, IP: " + '127.0.0.1' + ":" + str(12000))
+        print("Tracker/s info: IP: " + torrent['announce'])
+        print("Max download rate: " + str(self.max_download_rate) + " b/s")
+        print("Max upload rate: " + str(self.max_upload_rate) + " b/s")
 
     def connect_to_tracker(self, ip_address, port):
         self.connect(ip_address, port)
@@ -94,6 +106,9 @@ class Peer(Client, Server):
         pass
 
     def recieve_message(self):
+        msg = self.receive()
+        if msg is not None:
+            DO_something = "here"
         """
         TODO: implement this method
         (1) recieve the message
@@ -106,7 +121,6 @@ class Peer(Client, Server):
         (6) Start sharing the piece with other peers.
         :return: VOID
         """
-        pass
 
     def get_top_four_peers(self):
         """
@@ -167,18 +181,7 @@ class Peer(Client, Server):
 max_upl = 10000
 max_down = 10000
 torrent_name = 'config.torrent'
-peer_ip = '127.0.0.1'
-peer_port = 12001
 
-# Start
 peer = Peer(max_upl, max_down)
-torrent = peer.get_metainfo('./metainfo/' + torrent_name)
-tracker = torrent['announce'].split(':') # tracker info, 0 = ip, 1 = port
-swarm = peer.connect_to_tracker(tracker[0], int(tracker[1]))
-peer.connect_to_swarm(swarm)
+peer.start_download(torrent_name)
 
-print("\n***** P2P client App *****")
-print("Peer Info: id: xxxxx, IP: " + peer_ip + ":" + str(peer_port))
-print("Tracker/s info: IP: " + torrent['announce'])
-print("Max download rate: " + str(max_down) + " b/s")
-print("Max upload rate: " + str(max_upl) + " b/s")

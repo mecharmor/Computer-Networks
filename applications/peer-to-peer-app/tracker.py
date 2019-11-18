@@ -15,10 +15,10 @@ from server import Server
 
 class Tracker(Server):
 
-    PORT = 12000
+    PORT = 13000
     IP_ADDRESS = "127.0.0.1"
 
-    def __init__(self, ip_address = None, port = 0):
+    def __init__(self, ip_address = '127.0.0.1', port = 13000):
         """
         TODO: finish constructor implementation (if needed)
         If parameters ip_address and port are not set at the object creation time,
@@ -26,44 +26,14 @@ class Tracker(Server):
         :param ip_address:
         :param port:
         """
-        Server.__init__(self)
+        Server.__init__(self, ip_address, port)
         self.port = port
         self.ip = ip_address
-        # the list of swarms that this tracker keeps
-        self.swarms = []
-
-    def add_swarm(self, swarm):
-        """
-        Already implemented
-        Add a Swarm object to the swarms list of the tracker
-        :param swarm:
-        :return:
-        """
-        self.swarms.append(swarm)
+        self.swarms = [] # the list of swarms that this tracker keeps
+        self.listen()
 
     def remove_swarm(self, resource_id):
-        """
-        TODO: implement this method
-        Given a resource id, remove the swarm from the tracker
-        that is sharing this resource id.
-        This happens normally when there is no seeder sharing
-        this resource.
-        :param resource_id:
-        :return: VOID
-        """
-        pass
-
-    def add_peer_to_swarm(self, peer, resource_id):
-        """
-        TODO: implement this method
-        Based on the resource_id provided, iterate over the
-        swarms list, and when resource_id matchs, add the
-        new peer to the swarm.
-        :param peer:
-        :param resource_id:
-        :return: VOID
-        """
-        pass
+        self.swarms = [s for s in self.swarms if s.resource_id() != resource_id]
 
     def change_peer_status(self, resource_id):
         """
@@ -90,4 +60,13 @@ class Tracker(Server):
         """
         pass
 
+
+    # implemented
+    def add_swarm(self, swarm):
+        self.swarms.append(swarm)
+
+    def add_peer_to_swarm(self, peer, resource_id):
+        for i in self.swarms:
+            if i.resource_id() == resource_id:
+                self.swarms.add_peer(peer)
 

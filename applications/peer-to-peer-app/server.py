@@ -11,12 +11,13 @@ from logging import Logging
 
 class Server(object):
 
-    def __init__(self):
+    def __init__(self, ip, port):
         self.logging = Logging()
-        self.host = '127.0.0.1'
-        self.port = 12000
+        self.host = ip
+        self.port = port
         self.max_connections = 20
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.clients = []
 
     def listen(self):
         print("Listening On " + self.host + ":" + str(self.port))
@@ -44,15 +45,15 @@ class Server(object):
         try:
             while True:
                 conn, addr = self.server.accept() # Note: addr[0] is client IP, addr[1] is socket id
-                threading._start_new_thread(self.threaded_client, (conn, addr))
+                threading._start_new_thread(self.handle_connection, (conn, addr))
                 self.logging.log("server.py -> accept", "new client joined: " + str(addr[1]))
         except socket.error as err:
             print("accept new client failed with error %s" % str(err))
             self.logging.log("server.py -> accept", "accept new client failed", 2, str(err))
 
-    def receive(self, memory_allocation_size):
+    def receive(self, socket_conn, memory_allocation_size):
         try:
-            serialized_data = self.server.recv(memory_allocation_size)
+            serialized_data = socket_conn.recv(memory_allocation_size)
             deserialized = pickle.loads(serialized_data)
             self.logging.log("server.py -> receive", "received data: " + str(deserialized))
             return deserialized
@@ -65,22 +66,19 @@ class Server(object):
         self.logging.log("server.py -> receive", "an exception occured and receive is returning empty data!!!", 3)
         return None
 
-    def send(self, data):
+    def send(self, socket_conn, data):
         try:
             serialized = pickle.dumps(data)
-            self.server.send(serialized)
+            socket_conn.send(serialized)
             self.logging.log("server.py -> send", "data sent" + str(data))
         except socket.error as err:
             self.logging.log("server.py -> send", "could not send to socket", 2, str(err))
 
-    def threaded_client(self, conn, client_addr):
-        self.logging.log("server.py -> threaded_client", "threaded client running")
-        """
-        TODO: implement this method
-        :param conn:
-        :param client_addr:
-        :return: a threaded client.
-        """
-        # [issue], implement here!! 
-        # create a Client here
-        return None
+    def handle_connection(self, conn, addr):
+        self.logging.log("server.py -> handle_connection", "client connected: " + str(addr[0]))
+        self.clients.append((conn, addr))
+        # I am confused what to do here
+        # data = self.receive(conn, 100000)
+
+    def get_connected_clients_list(self):
+        return self.clients

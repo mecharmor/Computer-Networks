@@ -42,7 +42,7 @@ class Client(object):
             self.logging.log("client.py -> receive", "unpickling error!", 2, str(err))
 
         self.logging.log("client.py -> receive", "an exception occured and receive is returning empty data!!!", 3)
-        return {}
+        return None
 
     def close(self):
         self.logging.log("client.py -> close", " socket closed!")
