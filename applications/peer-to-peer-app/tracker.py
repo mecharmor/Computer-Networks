@@ -53,3 +53,6 @@ class Tracker(Server):
             if i.resource_id() == resource_id:
                 self.swarms.add_peer(peer)
 
+
+
+tracker = Tracker()

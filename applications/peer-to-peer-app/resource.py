@@ -10,6 +10,7 @@ class Resource(object):
     This class provides services to handle resources
     """
     def __init__(self, resource_id = 0, file_path = None, file_len = 0, piece_len = 0 ):
+        self.logging = Logging()
         """
         TODO: complete the implementation of this constructor.
         :param resource_id: default 0
@@ -26,15 +27,7 @@ class Resource(object):
         self.completed = []  # the pieces that are already completed
 
     def add_tracker(self, ip_address, port):
-        """
-        TODO: Implement this method
-        (1) Create the announce ip_address:port (i,e '127.0.0.1:12000')
-        (2) Add the announce to the trackers list.
-        :param ip_address:
-        :param port:
-        :return: VOID
-        """
-        return None
+        self.trackers.append(ip_address + ":" + str(port))
 
     def get_trackers(self):
         return self.trackers
@@ -79,19 +72,15 @@ class Resource(object):
         return hashes
 
     def parse_metainfo(self, file_path):
-        """
-        TODO: implement this method
-        Parse the ,torrent file containing the metainfo for this resource
-        and save all the info in instances variables of this class so the
-        metainfo of the torrent can be easily accessible by the peer.
-        :param file_path: the path to the metainfo (extension torrent)
-                          file to be parsed
-        :return: a python dictionary with the following keys:
-                 (file_name, tracker_ip_address, tracker_port, piece_len, file_len, pieces}
-                 Note that the key pieces will store the list of sh1a hashes from each piece
-                 of the file. You can assume
-        """
-        return None
+        try:
+            torrent = open(file_path, 'rb')
+            torrent_json = json.loads(torrent.read())
+            return torrent_json
+        except FileNotFoundError as e:
+            self.logging.log("resource.py -> parse_metainfo", "could not find torrent file", 3, str(e))
+            print("Could not find torrent file")
+        except Exception as e:
+            print("could not parse json: " + str(e))
 
 
 class Piece(object):
@@ -108,6 +97,8 @@ class Piece(object):
 
 
     def _create_blocks(self, max_size = 16):
+        converted_size = max_size * 1024
+
         """
         TODO: implement this method
         (1) It is important here to create small chucks of data

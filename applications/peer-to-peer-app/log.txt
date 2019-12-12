@@ -19,3 +19,108 @@ FATAL    | client.py -> receive | an exception occured and receive is returning 
 CRITICAL | client.py -> connect | failed to connect to host on: 127.0.0.1:12000[Errno 61] Connection refused |2019-11-17 12:21:19
 CRITICAL | client.py ->  | receive[Errno 57] Socket is not connected |2019-11-17 12:21:19
 FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-11-17 12:21:19
+CRITICAL | client.py -> connect | failed to connect to host on: 127.0.0.1:13000[Errno 111] Connection refused |2019-12-11 16:45:07
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:45:07
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:45:07
+CRITICAL | client.py -> connect | failed to connect to host on: 127.0.0.1:13000[Errno 111] Connection refused |2019-12-11 16:46:02
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:46:02
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:46:02
+CRITICAL | client.py -> connect | failed to connect to host on: 127.0.0.1:13000[Errno 111] Connection refused |2019-12-11 16:46:28
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:46:28
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:46:28
+INFO     | server.py -> listen | Listening On 127.0.0.1:13000 |2019-12-11 16:47:14
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:47:18
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:47:18
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:47:18
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:47:18
+INFO     | server.py -> accept | new client joined: 44804 |2019-12-11 16:47:18
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:49:54
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:49:54
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:49:54
+INFO     | server.py -> accept | new client joined: 44808 |2019-12-11 16:49:54
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:49:54
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:50:52
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:50:52
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:50:52
+INFO     | server.py -> accept | new client joined: 44812 |2019-12-11 16:50:52
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:50:52
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:51:15
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:51:15
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:51:15
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:51:15
+INFO     | server.py -> accept | new client joined: 44816 |2019-12-11 16:51:15
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:51:50
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:51:50
+INFO     | server.py -> accept | new client joined: 44818 |2019-12-11 16:51:50
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:51:50
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:51:50
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:52:13
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:52:13
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:52:13
+INFO     | server.py -> accept | new client joined: 44820 |2019-12-11 16:52:13
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:52:13
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:52:33
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:52:33
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:52:33
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:52:33
+INFO     | server.py -> accept | new client joined: 44822 |2019-12-11 16:52:33
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:52:44
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:52:44
+INFO     | server.py -> accept | new client joined: 44824 |2019-12-11 16:52:44
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:52:44
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:52:44
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:53:15
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:53:15
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:53:15
+INFO     | server.py -> accept | new client joined: 44826 |2019-12-11 16:53:15
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:53:15
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:57:03
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:57:03
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:57:03
+INFO     | server.py -> accept | new client joined: 44854 |2019-12-11 16:57:03
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:57:03
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:58:10
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:58:10
+INFO     | server.py -> accept | new client joined: 44856 |2019-12-11 16:58:10
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:58:10
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:58:10
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:58:11
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:58:11
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:58:11
+INFO     | server.py -> accept | new client joined: 44858 |2019-12-11 16:58:11
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:58:11
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:58:11
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:58:11
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:58:11
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:58:11
+INFO     | server.py -> accept | new client joined: 44860 |2019-12-11 16:58:11
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:58:12
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:58:12
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:58:12
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:58:12
+INFO     | server.py -> accept | new client joined: 44862 |2019-12-11 16:58:12
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:58:13
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:58:13
+INFO     | server.py -> accept | new client joined: 44864 |2019-12-11 16:58:13
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:58:13
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:58:13
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:58:13
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:58:13
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:58:13
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:58:13
+INFO     | server.py -> accept | new client joined: 44866 |2019-12-11 16:58:13
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:58:24
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:58:24
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:58:24
+INFO     | server.py -> accept | new client joined: 44868 |2019-12-11 16:58:24
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:58:24
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:59:41
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:59:41
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:59:41
+INFO     | server.py -> accept | new client joined: 44870 |2019-12-11 16:59:41
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:59:41
+INFO     | client.py -> connect | connected to host: 127.0.0.1:13000 |2019-12-11 16:59:59
+CRITICAL | client.py ->  | receive[Errno 107] Transport endpoint is not connected |2019-12-11 16:59:59
+INFO     | server.py -> accept | new client joined: 44872 |2019-12-11 16:59:59
+FATAL    | client.py -> receive | an exception occured and receive is returning empty data!!! |2019-12-11 16:59:59
+INFO     | server.py -> handle_connection | client connected: 127.0.0.1 |2019-12-11 16:59:59

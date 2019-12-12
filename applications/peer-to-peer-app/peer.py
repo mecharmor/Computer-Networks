@@ -3,6 +3,8 @@
 from server import Server
 from logging import Logging
 from client import Client
+import threading
+import random
 import json
 
 class Peer(Client, Server):
@@ -12,11 +14,13 @@ class Peer(Client, Server):
     SEEDER = 1
     LEECHER = 2
 
+    PORT = 5000 # used for local connection
+
     def __init__(self, max_upload_rate, max_download_rate):
         """
         TODO: implement the class constructor
         """
-        Server.__init__(self, '127.0.0.1', 12000) # inherites methods from Server class
+        Server.__init__(self, '127.0.0.1', self.PORT) # inherites methods from Server class COULD BE WRONG TO SET LISTENING IP TO 0.0.0.0
         Client.__init__(self) # inherites methods from Client class
         self.status = self.PEER
         self.chocked = False
@@ -24,6 +28,17 @@ class Peer(Client, Server):
         self.max_download_rate = max_download_rate
         self.max_upload_rate = max_upload_rate
         self.logging = Logging()
+        self.swarm_clients = []
+
+    def lanIP(self):
+        try: 
+            host_name = socket.gethostname() 
+            host_ip = socket.gethostbyname(host_name)
+            return host_ip
+        except: 
+            print("Unable to get Hostname and IP") 
+
+        return "xxx.xxx.xxx.xxx"
 
     def start_download(self, torrent_name):
         torrent = self.get_metainfo('./metainfo/' + torrent_name)
@@ -32,7 +47,7 @@ class Peer(Client, Server):
         peer.connect_to_swarm(swarm)
 
         print("\n***** P2P client App *****")
-        print("Peer Info: id: xxxxx, IP: " + '127.0.0.1' + ":" + str(12000))
+        print("Peer Info: id: xxxxx, IP: " + self.lanIP() + ":" + str(self.PORT))
         print("Tracker/s info: IP: " + torrent['announce'])
         print("Max download rate: " + str(self.max_download_rate) + " b/s")
         print("Max upload rate: " + str(self.max_upload_rate) + " b/s")
@@ -41,40 +56,9 @@ class Peer(Client, Server):
         self.connect(ip_address, port)
         return self.receive(self.max_download_rate) # return swarm
 
-    def connect_to_swarm(self, swarm):
-        list_of_peers = swarm.peers()
-        """
-        TODO: implement this method
-        This method will create a socket (TCP) connection
-        with all the peers in the swarm sharing the requested
-        resource.
-        Take into consideration that even if you are connected
-        to the swarm. You do not become a leecher until you set
-        your status to interested, and at least one of the leechers
-        or seeders in the swarm is not chocked.
-        :param swarm: Swarm object returned from the tracker
-        :return: VOID
-        """
-
-    def upload_rate(self):
-        """
-        TODO: implement this method
-        Compute the actual upload rate using the formule from assignment docs
-        This needs to be re-evaluated every 30 seconds approximatly
-        :return: the new upload_rate
-        """
-        return 5 # sample data for now
-
-    def download_rate(self):
-        """
-        TODO: implement this method
-        Compute the actual download rate using the formule from assignment docs
-        This needs to be re-evaluated every 30 seconds approximatly
-        :return: the new download rate
-        """
-        return 5 # sample data for now
-
     def send_message(self, block, start_index = -1, end_index = -1):
+
+        # this function is invoked by one of the multithreaded functions. probably from handle_single_peer_connection
         """
         TODO: implement this method
         (1) Create a message object from the message class
@@ -92,11 +76,18 @@ class Peer(Client, Server):
         """
         pass
 
-    def recieve_message(self):
-        msg = self.receive()
-        if msg is not None:
-            DO_something = "here"
-        """
+    # ========== THESE 2 FUNCTIONS BELOW ARE HOW WE WILL HANDLE CONNECTIONS TO THE ENTIRE SWARM ====================
+
+    def handle_connection(self, conn, addr): # OVERRIDDEN FROM SERVER, (THREADED)
+        # This function is the entry point for peers to send data so we will want to parse the message class to retrieve that data
+        # this functin is already multithreaded so we can loop in here forever without any issues on blocking the main thread
+        self.logging.log("peer.py -> override handle_connection", "client connected: " + str(addr[0]))
+        self.clients.append((conn, addr))
+
+        # if requested we need to send our upload/download rate in a message
+
+        while True:
+                """
         TODO: implement this method
         (1) recieve the message
         (2) inspect the message (i.e does it have payload)
@@ -108,6 +99,60 @@ class Peer(Client, Server):
         (6) Start sharing the piece with other peers.
         :return: VOID
         """
+            msg = self.receive(conn, self.max_download_rate)
+
+    def handle_single_peer_connection(self, connected_client):
+        """
+        TODO: implement this method
+        This method will create a socket (TCP) connection
+        with all the peers in the swarm sharing the requested
+        resource.
+        Take into consideration that even if you are connected
+        to the swarm. You do not become a leecher until you set
+        your status to interested, and at least one of the leechers
+        or seeders in the swarm is not chocked.
+        :param swarm: Swarm object returned from the tracker
+        :return: VOID
+        """
+        while True:
+            data = connected_client.receive(self.max_download_rate) # we check if the peer sends a message and is requesting some data
+            connected_client.send(self.max_upload_rate) # we send the data we have to the requester peer
+
+    def connect_to_swarm(self, swarm): # BROKEN
+        return # REMOVE SOON
+        list_of_peers = swarm.peers()
+
+        cl_port = self.PORT + 1
+        for i in range(5):
+            if i < len(list_of_peers):
+                client = Client()
+                client.connnect(XXXXXXX, XXXXXXXX) # need to access swarm and get ip informatin of those nodes swarm[i] or swarm[i].info()
+                self.swarm_clients.append(cl)
+                threading._start_new_thread(self.handle_single_peer_connection, client)
+                cl = Client()
+
+
+    def upload_rate(self):
+        #self.get_top_four_peers()....
+        """
+        TODO: implement this method
+        Compute the actual upload rate using the formule from assignment docs
+        This needs to be re-evaluated every 30 seconds approximatly
+        :return: the new upload_rate
+        """
+        return 5 # sample data for now
+
+    def download_rate(self):
+        # self.get_top_four_peers()
+        # calculate here
+
+        """
+        TODO: implement this method
+        Compute the actual download rate using the formule from assignment docs
+        This needs to be re-evaluated every 30 seconds approximatly
+        :return: the new download rate
+        """
+        return 5 # sample data for now
 
     def get_top_four_peers(self):
         """
@@ -133,17 +178,15 @@ class Peer(Client, Server):
 
     # ALL BELOW ARE DONE
     def change_role(self, new_role):
-        self.status = new_role
-    """
-    TODO: implement this method
-    When a peer is interested in downloading a pieces of
-    a resource, and the seeder or leecher sharing the resource
-    is not chocked, then the peer becomes a leecher. When the
-    leecher already have all the completed files from the file
-    it becomes a seeder.
-    :param new_role: use class constants: PEER, SEEDER or LEECHER
-    :return: VOID
-    """
+        if new_role == PEER:
+            self.status = PEER
+        elif new_role == SEEDER:
+            self.status = SEEDER
+        elif new_role == LEECHER:
+            self.status = LEECHER
+        else:
+            self.logging.log("peer.py -> change_role", "incorrect role to set: " + str(new_role), 3, str(e))
+
     def get_metainfo(self, torrent_path):
         try:
             torrent = open(torrent_path, 'r')
@@ -177,8 +220,8 @@ class Peer(Client, Server):
         self.interested = False
 
 
-max_upl = 10000
-max_down = 10000
+max_upl = int(random.random()*10000)
+max_down = int(random.random()*10000)
 torrent_name = 'config.torrent'
 
 peer = Peer(max_upl, max_down)

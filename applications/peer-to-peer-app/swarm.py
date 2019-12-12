@@ -13,7 +13,7 @@ class Swarm(object):
         self.peers.append(peer)
 
     def delete_peer(self, peer):
-        self.peers.remove(peer)
+        self.peers.remove(peer) # broken!
 
     def peers(self):
         return self.peers

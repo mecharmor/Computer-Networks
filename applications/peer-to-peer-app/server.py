@@ -75,6 +75,7 @@ class Server(object):
             self.logging.log("server.py -> send", "could not send to socket", 2, str(err))
 
     def handle_connection(self, conn, addr):
+        # THIS FUNCTION SHOULD BE OVERRIDEN BY CHILD CLASSES
         self.logging.log("server.py -> handle_connection", "client connected: " + str(addr[0]))
         self.clients.append((conn, addr))
         # I am confused what to do here
