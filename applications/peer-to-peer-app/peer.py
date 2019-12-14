@@ -21,6 +21,7 @@ class Peer(Client, Server):
         TODO: implement the class constructor
         """
         Server.__init__(self, '127.0.0.1', self.PORT) # inherites methods from Server class COULD BE WRONG TO SET LISTENING IP TO 0.0.0.0
+        threading._start_new_thread(self.listen, ()) # don't block main thread
         Client.__init__(self) # inherites methods from Client class
         self.status = self.PEER
         self.chocked = False
@@ -29,32 +30,34 @@ class Peer(Client, Server):
         self.max_upload_rate = max_upload_rate
         self.logging = Logging()
         self.swarm_clients = []
-
-    def lanIP(self):
-        try: 
-            host_name = socket.gethostname() 
-            host_ip = socket.gethostbyname(host_name)
-            return host_ip
-        except: 
-            print("Unable to get Hostname and IP") 
-
-        return "xxx.xxx.xxx.xxx"
+        self.myIp = "x.x.x.x"
+        self.mySocketId = "00000"
 
     def start_download(self, torrent_name):
         torrent = self.get_metainfo('./metainfo/' + torrent_name)
         tracker = torrent['announce'].split(':') # tracker info, 0 = ip, 1 = port
-        swarm = self.connect_to_tracker(tracker[0], int(tracker[1]))
+        swarm = self.connect_to_tracker(tracker[0], int(tracker[1]), torrent['info']['name'])
         peer.connect_to_swarm(swarm)
 
         print("\n***** P2P client App *****")
-        print("Peer Info: id: xxxxx, IP: " + self.lanIP() + ":" + str(self.PORT))
+        print("Peer Info: id: " + self.mySocketId + ", IP: " + self.myIp + ":" + str(self.PORT))
         print("Tracker/s info: IP: " + torrent['announce'])
         print("Max download rate: " + str(self.max_download_rate) + " b/s")
         print("Max upload rate: " + str(self.max_upload_rate) + " b/s")
 
-    def connect_to_tracker(self, ip_address, port):
+    def connect_to_tracker(self, ip_address, port, resource_id):
         self.connect(ip_address, port)
-        return self.receive(self.max_download_rate) # return swarm
+        self.send({"resource_id": resource_id})
+        initial_data = self.receive(1024)
+
+        try:
+            # set init data
+            self.myIp = initial_data["my_ip"]
+            self.mySocketId = initial_data["socket_id"]
+            return initial_data["swarm"]
+        except Exception as e:
+            self.logging.log("peer.py -> connect_to_tracker", " data from tracker: " + str(initial_data), 3, str(e))
+            exit()
 
     def send_message(self, block, start_index = -1, end_index = -1):
 
@@ -99,7 +102,7 @@ class Peer(Client, Server):
         (6) Start sharing the piece with other peers.
         :return: VOID
         """
-            msg = self.receive(conn, self.max_download_rate)
+            # msg = self.receive(conn, self.max_download_rate)
 
     def handle_single_peer_connection(self, connected_client):
         """

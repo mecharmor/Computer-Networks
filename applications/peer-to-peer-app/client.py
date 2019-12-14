@@ -31,7 +31,7 @@ class Client(object):
 
     def receive(self, memory_allocation_size):
         try:
-            serialized_data = self.server.recv(memory_allocation_size)
+            serialized_data = self.client_socket.recv(memory_allocation_size)
             deserialized = pickle.loads(serialized_data)
             self.logging.log("client.py -> receive", "received data: " + str(deserialized))
             return deserialized
@@ -40,8 +40,9 @@ class Client(object):
             self.logging.log("client.py -> ", "receive", 2, str(err))
         except pickle.UnpicklingError as err:
             self.logging.log("client.py -> receive", "unpickling error!", 2, str(err))
+        except Exception as e:
+            self.logging.log("client.py -> receive", "when trying to receive data something bad happened... ", 3, str(e))
 
-        self.logging.log("client.py -> receive", "an exception occured and receive is returning empty data!!!", 3)
         return None
 
     def close(self):

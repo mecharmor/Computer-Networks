@@ -12,6 +12,8 @@ in the swarm)
 
 """
 from server import Server
+from swarm import Swarm
+import threading
 import pickle
 
 class Tracker(Server):
@@ -37,21 +39,51 @@ class Tracker(Server):
         :return: VOID
         """
         pass
-        
-    # implemented
-    def send_peers(self, peer_socket, resource_id):
+
+    def handle_connection(self, conn, addr): # Override
+        self.logging.log("tracker.py -> handle_connection", "client connected: " + str(addr[1]))
+        self.clients.append((conn, addr))
+
+        try:
+            resource_id = self.receive(conn, 1024)["resource_id"] # get resource id from peer
+            if not self.is_resource_in_swarm(resource_id):
+                self.add_swarm(Swarm(resource_id)) # Create a swarm for this new resource
+            self.add_peer_to_swarm(addr, resource_id)
+
+            data = {"socket_id": str(addr[1]), "my_ip": str(addr[0]), "swarm": self.get_swarm(resource_id)} # create map containing swarm
+            self.send(conn, data) # send init data to peer
+        except KeyError as e:
+            self.logging.log("tracker.py -> handle_connection", "a Peer just connected but something went wrong with the data" + str(addr[0]), 2, str(e))
+
+    def is_resource_in_swarm(self, resource_id):
         for s in self.swarms:
-            if s.resource_id() == resource_id: # [issue], assuming peer_socket is the physical socket
+            if s.resource_id == resource_id:
+                return True
+        return False
+                
+    def send_peers(self, peer_socket, resource_id): # implemented
+        for s in self.swarms:
+            if s.resource_id == resource_id: # [issue], assuming peer_socket is the physical socket
                 serialized = pickle.loads(s)
                 peer_socket.send(serialized)
 
     def add_swarm(self, swarm):
         self.swarms.append(swarm)
 
+    def get_swarm(self, resource_id):
+        for swarm in self.swarms:
+            if swarm.resource_id == resource_id:
+                return swarm
+        return ""
+
     def add_peer_to_swarm(self, peer, resource_id):
-        for i in self.swarms:
-            if i.resource_id() == resource_id:
-                self.swarms.add_peer(peer)
+        idx = 0
+        for swarm in self.swarms:
+            if swarm.resource_id == resource_id:
+                swarm.add_peer(peer)
+                self.swarms[idx] = swarm
+            idx += 1
+                
 
 
 
