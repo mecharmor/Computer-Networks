@@ -74,7 +74,7 @@ class Tracker(Server):
         for swarm in self.swarms:
             if swarm.resource_id == resource_id:
                 return swarm
-        return ""
+        return []
 
     def add_peer_to_swarm(self, peer, resource_id):
         idx = 0

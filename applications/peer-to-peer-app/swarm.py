@@ -15,7 +15,7 @@ class Swarm(object):
     def delete_peer(self, peer):
         self.peers.remove(peer) # broken!
 
-    def peers(self):
+    def getPeers(self):
         return self.peers
 
     def resource_id(self):
