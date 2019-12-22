@@ -41,7 +41,7 @@ class Client(object):
         except pickle.UnpicklingError as err:
             self.logging.log("client.py -> receive", "unpickling error!", 2, str(err))
         except Exception as e:
-            self.logging.log("client.py -> receive", "when trying to receive data something bad happened... ", 3, str(e))
+            self.logging.log("client.py -> receive", "when trying to receive data something bad happened... [", 3, str(e) + "]")
 
         return None
 

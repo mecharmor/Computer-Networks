@@ -14,14 +14,14 @@ class Peer(Client, Server):
     SEEDER = 1
     LEECHER = 2
 
-    PORT = 5000 # used for local connection
+    PORT = 5000  # used for local connection
 
     def __init__(self, max_upload_rate, max_download_rate):
         """
         TODO: implement the class constructor
         """
         Server.__init__(self, '127.0.0.1', self.PORT) # inherites methods from Server class COULD BE WRONG TO SET LISTENING IP TO 0.0.0.0
-        threading._start_new_thread(self.listen, ()) # don't block main thread
+        threading.Thread(target=self.listen, args=())
         Client.__init__(self) # inherites methods from Client class
         self.status = self.PEER
         self.chocked = False
@@ -37,7 +37,7 @@ class Peer(Client, Server):
         torrent = self.get_metainfo('./metainfo/' + torrent_name)
         tracker = torrent['announce'].split(':') # tracker info, 0 = ip, 1 = port
         swarm = self.connect_to_tracker(tracker[0], int(tracker[1]), torrent['info']['name'])
-        peer.connect_to_swarm(swarm)
+        self.connect_to_swarm(swarm)
 
         print("\n***** P2P client App *****")
         print("Peer Info: id: " + self.mySocketId + ", IP: " + self.myIp + ":" + str(self.PORT))
@@ -90,7 +90,7 @@ class Peer(Client, Server):
         # if requested we need to send our upload/download rate in a message
 
         while True:
-                """
+         """
         TODO: implement this method
         (1) recieve the message
         (2) inspect the message (i.e does it have payload)
@@ -104,91 +104,52 @@ class Peer(Client, Server):
         """
             # msg = self.receive(conn, self.max_download_rate)
 
-    def handle_single_peer_connection(self, connected_client):
-        """
-        TODO: implement this method
-        This method will create a socket (TCP) connection
-        with all the peers in the swarm sharing the requested
-        resource.
-        Take into consideration that even if you are connected
-        to the swarm. You do not become a leecher until you set
-        your status to interested, and at least one of the leechers
-        or seeders in the swarm is not chocked.
-        :param swarm: Swarm object returned from the tracker
-        :return: VOID
-        """
+    def handle_single_peer_connection(self, connected_client, _):
         while True:
             data = connected_client.receive(self.max_download_rate) # we check if the peer sends a message and is requesting some data
             connected_client.send(self.max_upload_rate) # we send the data we have to the requester peer
 
-    def connect_to_swarm(self, swarm): # BROKEN
-        return # REMOVE SOON
-        list_of_peers = swarm.peers()
+    def connect_to_swarm(self, swarm):
+        list_of_peers = swarm.getPeers() # [0] - IP, [1] socket id
 
-        cl_port = self.PORT + 1
-        for i in range(5):
-            if i < len(list_of_peers):
-                client = Client()
-                client.connnect(XXXXXXX, XXXXXXXX) # need to access swarm and get ip informatin of those nodes swarm[i] or swarm[i].info()
-                self.swarm_clients.append(cl)
-                threading._start_new_thread(self.handle_single_peer_connection, client)
-                cl = Client()
-
+        connected_peers = 1
+        for p in list_of_peers:
+            if connected_peers <= 5 and str(p[1]) != str(self.mySocketId): # prevent connecting to self (during testing)
+                    cl = Client()
+                    cl.connect(p[0], self.PORT + connected_peers)
+                    threading.Thread(target=self.handle_single_peer_connection, args=(cl, "")).start()
+                    self.swarm_clients.append(cl)
+                    connected_peers += 1
+            else:
+                print("Ignored Peer connection due to max 5 connections or connecting to self by accident")
 
     def upload_rate(self):
         #self.get_top_four_peers()....
-        """
-        TODO: implement this method
-        Compute the actual upload rate using the formule from assignment docs
-        This needs to be re-evaluated every 30 seconds approximatly
-        :return: the new upload_rate
-        """
         return 5 # sample data for now
 
     def download_rate(self):
         # self.get_top_four_peers()
         # calculate here
-
-        """
-        TODO: implement this method
-        Compute the actual download rate using the formule from assignment docs
-        This needs to be re-evaluated every 30 seconds approximatly
-        :return: the new download rate
-        """
-        return 5 # sample data for now
+        #  sample data for now
+        return 5
 
     def get_top_four_peers(self):
-        """
-        TODO: implement this method
-        Since we are implementing the 'tit-for-tat' algorithm
-        which upload data to the top 4 peers in the swarm (max rate upload peers)
-        then this method will inspect the swarm object returned by the tracker
-        and will get the 4 top peers with highest upload rates. This method needs to
-        be re-evaluated every 30 seconds.
-        :return: a list of the 4 top peers in the swarm
-        """
         self.top_four = []
-        # your implementation here
         return self.top_four
 
     def verify_piece_downloaded(self, piece):
-        """
-        TODO: implement this method
-        :param piece: the piece object of this piece
-        :return: true if the piece is verified and is not corrupted, otherwisem, return false
-        """
-        return False
+        return piece.is_completed() and not piece.is_corrupted()
 
     # ALL BELOW ARE DONE
     def change_role(self, new_role):
-        if new_role == PEER:
-            self.status = PEER
-        elif new_role == SEEDER:
-            self.status = SEEDER
-        elif new_role == LEECHER:
-            self.status = LEECHER
+        if new_role == self.PEER:
+            self.status = self.PEER
+        elif new_role == self.SEEDER:
+            self.status = self.SEEDER
+        elif new_role == self.LEECHER:
+            self.status = self.LEECHER
         else:
-            self.logging.log("peer.py -> change_role", "incorrect role to set: " + str(new_role), 3, str(e))
+            self.logging.log("peer.py -> change_role", "incorrect role to set: " + str(new_role))
 
     def get_metainfo(self, torrent_path):
         try:
@@ -221,7 +182,6 @@ class Peer(Client, Server):
 
     def not_interested(self):
         self.interested = False
-
 
 max_upl = int(random.random()*10000)
 max_down = int(random.random()*10000)
