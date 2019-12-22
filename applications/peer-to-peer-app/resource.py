@@ -67,6 +67,12 @@ class Piece(object):
     def get_blocks(self):
         return self.blocks
 
+    def is_corrupted(self):
+        for s in self.hash_pieces:
+            if s == self.hash:
+                return False # not corrupted
+        return True # piece is corrupted
+
     def is_completed(self):
         return self.completed
 

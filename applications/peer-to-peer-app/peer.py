@@ -105,18 +105,6 @@ class Peer(Client, Server):
             # msg = self.receive(conn, self.max_download_rate)
 
     def handle_single_peer_connection(self, connected_client, _):
-        """
-        TODO: implement this method
-        This method will create a socket (TCP) connection
-        with all the peers in the swarm sharing the requested
-        resource.
-        Take into consideration that even if you are connected
-        to the swarm. You do not become a leecher until you set
-        your status to interested, and at least one of the leechers
-        or seeders in the swarm is not chocked.
-        :param swarm: Swarm object returned from the tracker
-        :return: VOID
-        """
         while True:
             data = connected_client.receive(self.max_download_rate) # we check if the peer sends a message and is requesting some data
             connected_client.send(self.max_upload_rate) # we send the data we have to the requester peer
@@ -126,58 +114,31 @@ class Peer(Client, Server):
 
         connected_peers = 1
         for p in list_of_peers:
-            if connected_peers <= 5 and str(p[1]) != str(self.mySocketId):
+            if connected_peers <= 5 and str(p[1]) != str(self.mySocketId): # prevent connecting to self (during testing)
                     cl = Client()
                     cl.connect(p[0], self.PORT + connected_peers)
                     threading.Thread(target=self.handle_single_peer_connection, args=(cl, "")).start()
                     self.swarm_clients.append(cl)
                     connected_peers += 1
             else:
-                print("not enough peers in swarm or ignored connecting to ourselves")
+                print("Ignored Peer connection due to max 5 connections or connecting to self by accident")
 
     def upload_rate(self):
         #self.get_top_four_peers()....
-        """
-        TODO: implement this method
-        Compute the actual upload rate using the formule from assignment docs
-        This needs to be re-evaluated every 30 seconds approximatly
-        :return: the new upload_rate
-        """
         return 5 # sample data for now
 
     def download_rate(self):
         # self.get_top_four_peers()
         # calculate here
-
-        """
-        TODO: implement this method
-        Compute the actual download rate using the formule from assignment docs
-        This needs to be re-evaluated every 30 seconds approximatly
-        :return: the new download rate
-        """
-        return 5 # sample data for now
+        #  sample data for now
+        return 5
 
     def get_top_four_peers(self):
-        """
-        TODO: implement this method
-        Since we are implementing the 'tit-for-tat' algorithm
-        which upload data to the top 4 peers in the swarm (max rate upload peers)
-        then this method will inspect the swarm object returned by the tracker
-        and will get the 4 top peers with highest upload rates. This method needs to
-        be re-evaluated every 30 seconds.
-        :return: a list of the 4 top peers in the swarm
-        """
         self.top_four = []
-        # your implementation here
         return self.top_four
 
     def verify_piece_downloaded(self, piece):
-        """
-        TODO: implement this method
-        :param piece: the piece object of this piece
-        :return: true if the piece is verified and is not corrupted, otherwisem, return false
-        """
-        return False
+        return piece.is_completed() and not piece.is_corrupted()
 
     # ALL BELOW ARE DONE
     def change_role(self, new_role):
@@ -221,7 +182,6 @@ class Peer(Client, Server):
 
     def not_interested(self):
         self.interested = False
-
 
 max_upl = int(random.random()*10000)
 max_down = int(random.random()*10000)
