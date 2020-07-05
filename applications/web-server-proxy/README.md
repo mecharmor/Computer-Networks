@@ -1,6 +1,6 @@
 # Web Proxy Server
 
-- Cory Lewis 917359162
+- Cory Lewis
 
 - Multithreaded Client/Server TCP Message APP With Primitive Sockets
 - Description: Proxy server that has levels of authentication for admins, managers, and normal users. Data will be cached and a history will be kept of when data is accessed and modified. admins can access all websites. managers can access most websites. normal users can access the smallest subset of websites.
