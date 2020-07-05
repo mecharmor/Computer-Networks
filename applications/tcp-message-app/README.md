@@ -2,7 +2,7 @@
 
 
 
-* Cory Lewis 917359162
+* Cory Lewis
 * Multithreaded Client/Server TCP Message APP With Primitive Sockets
 * Description: TCP Client/Server app that uses the socket library in python to develop a server and client class that utilize these sockets in
 talking with one another.
