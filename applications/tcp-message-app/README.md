@@ -1,34 +1,11 @@
 # Multithreaded Client/Server TCP Message APP With Primitive Sockets. 
 
-
-
-* Cory Lewis 917359162
-
-# Grade
-
-90/100 
-
-Comments:
-
-
-* In option 1, when I request the list of connected clients, it also shows the ones that were disconnected. 
-
-* In option 5, when two clients are talking between them, one of them does not receive the text from the other. It only shows in screen input from that client. Also, you don't provide a way to exit from the channel without closing the client. 
-
-* When I desconnect clients closing the terminal windows, the server does not ackownledges that the connection from those clients was closed. This is one important step that you needed to implement by yourself. 
-
-* Sorry too many minor mistakes that were expected to be handled and are important in computer networks. 
-
-* In my end, your extracredit is not working. I know you implemented that because is on the video below, but it needs to be compatible with OSX and LINUX versions of UNIX environments as well. Come to my office hours, and show me that your extracredit works, and I will give you more points for this assignment,
-
-#
-* Multithreaded Client/Server TCP Message APP With Primitive Sockets
 * Description: TCP Client/Server app that uses the socket library in python to develop a server and client class that utilize these sockets in
 talking with one another.
 * Purpose: The purpose of this assignment is to better understand the TCP protocol with implementation of sockets and threading.
 * Clear instructions about how to clone/download/install/execute the project
-    * to clone the project go to Terminal (OSX/Linux) and type `git clone https://github.com/sfsu-joseo/csc645-01-fall2019-projects-mecharmor`
-    * navigate to directory /applications/tcp-message-app/ or view this repo at URL: https://github.com/sfsu-joseo/csc645-01-fall2019-projects-mecharmor/tree/master/applications/tcp-message-app
+    * to clone the project go to Terminal (OSX/Linux) and type `git clone https://github.com/mecharmor/Networking-in-Python.git`
+    * navigate to directory /applications/tcp-message-app/
     * once you are in the directory you can either double click the server.py and client.py or you can launch these in terminal by using the command 
     `python3 server.py` and `python3 client.py`. (Note: you must be in the directory of these files to launch)
     * WARNING: It is crucial that you start the server.py BEFORE the client.py. (For testing I used IP: `localhost`, and PORT: `8008`)
