@@ -1,6 +1,6 @@
 # P2P BitTorrent App
 
-- Cory Lewis 917359162
+- Cory Lewis
 
 - Description: P2P Swarm. A single tracker owns the information to access the swarm. When a new peer connects to the tracker it will be given the list of peers in the swam and it will also be added to that list of peers in the swarm. Peers that are leeching are downloading pieces of the file. Peers that are Seeding have the entire file and will upload pieces upon request. 
 - Purpose: The purpose of this project was to familiarize ourselves with the logic and flow behind decentralized P2P networks. Understanding the flow and also how file sharing occurs is fundamental in this project.
